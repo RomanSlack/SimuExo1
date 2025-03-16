@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 [Serializable]
 public class RequestData
@@ -16,62 +17,77 @@ public class RequestData
 
 public class AgentBrain : MonoBehaviour
 {
-    [SerializeField] private string agentId = "AgentA";
+    [SerializeField] public string agentId = "AgentA";
     [SerializeField] private string serverUrl = "http://127.0.0.1:3000/generate";
     [SerializeField] private NavMeshAgent navMeshAgent;
 
-    // Editable mood field in the Inspector.
-    [SerializeField, Tooltip("Set the agent's mood here.")]
-    private string agentMood = "I feel like doing something interesting today.";
+    [SerializeField, Tooltip("Set the agent's personality. This will be injected into its system prompt.")]
+    public string personality = "You are assertive, friendly, and eager to collaborate to find the missing O2 regulator.";
 
-    // Fixed system prompt (non-editable) with instructions for MOVE or NOTHING.
-    [SerializeField, Tooltip("System prompt for the AI. DO NOT MODIFY.")]
-    private string systemPrompt = "You are a game agent. You have a mood (provided by the user).\n" +
-        "You can choose to move to exactly one of these four locations: park, library, home, gym, or choose to do NOTHING.\n" +
-        "Your response should contain some brief explanation in natural language, but MUST end with a line in one of the following forms:\n" +
-        "MOVE: <location>\n" +
-        "NOTHING: do nothing\n" +
-        "Example:\n\"I feel like reading, so the library is best.\"\nMOVE: library";
+    // The system prompt now references the missing O2 regulator more explicitly
+    // This portion will be appended to the final system_prompt on the Python side if desired,
+    // or used stand-alone here if you prefer. 
+    private readonly string centralSystemPrompt = @"
+You are an autonomous game agent with the following personality:
+[PERSONALITY_HERE]
 
-    private static readonly HttpClient httpClient = new HttpClient();
-    private bool isMoving = false;
-    
-    // Stores details of the last action.
+PRIMARY GOAL: Collaborate with any other agents to locate the missing O2 regulator on this Mars base.
+You can:
+1) MOVE to 'park', 'library', 'home', 'gym', or move toward another agent by naming them.
+2) NOTHING: do nothing.
+3) CONVERSE: have a multi-round chat with a specific agent by naming them.
+
+IMPORTANT RULES:
+- Provide at least one sentence of reasoning in your response.
+- The final line MUST begin with one of: MOVE:, NOTHING:, CONVERSE:
+- If you fail to provide reasoning or break the final-line rule, your response is invalid.
+";
+
+    // Variables to track last action feedback, movement, conversation state, etc.
     private string lastActionFeedback = "No action taken yet.";
     private string lastMoveLocation = "";
+
+    private bool isMoving = false;
+    private bool inConversation = false;
+    private string converseTarget = "";
+    private int converseRounds = 0;
+
+    private static readonly HttpClient httpClient = new HttpClient();
 
     void Start()
     {
         if (navMeshAgent == null)
             navMeshAgent = GetComponent<NavMeshAgent>();
 
-        // On start, send an initial decision request.
-        // (This is now manual: if you want to start automatically, you could call RequestDecision here.
-        // For manual control, you can let WorldManager trigger the cycle.)
         Debug.Log($"Agent {agentId} started. Waiting for simulation cycle trigger...");
     }
 
-    // RequestDecision now accepts a single input string.
-    // This input should contain feedback (last action details + scan info).
+    // Build final system prompt by combining the central prompt with the agent's personality.
+    private string BuildSystemPrompt()
+    {
+        // Insert the personality text where [PERSONALITY_HERE] is.
+        return centralSystemPrompt.Replace("[PERSONALITY_HERE]", personality);
+    }
+
     public void RequestDecision(string input)
     {
-        string combinedInput = $"{input}\nMy current mood is: {agentMood}";
-        Debug.Log($"Agent {agentId} sending decision request with input:\n{combinedInput}");
-        StartCoroutine(SendToAI(combinedInput));
+        Debug.Log($"Agent {agentId} sending decision request with input:\n{input}");
+        StartCoroutine(SendToAI(input));
     }
 
     private IEnumerator SendToAI(string input)
     {
-        RequestData requestData = new RequestData();
-        requestData.agent_id = agentId;
-        requestData.user_input = input;
-        requestData.system_prompt = systemPrompt;
+        RequestData requestData = new RequestData
+        {
+            agent_id = agentId,
+            user_input = input,
+            system_prompt = BuildSystemPrompt()
+        };
 
         string jsonString = JsonUtility.ToJson(requestData);
         Debug.Log($"Agent {agentId} Request JSON: {jsonString}");
 
         var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
         Task<HttpResponseMessage> postTask = httpClient.PostAsync(serverUrl, content);
         yield return new WaitUntil(() => postTask.IsCompleted);
 
@@ -88,26 +104,96 @@ public class AgentBrain : MonoBehaviour
         Debug.Log($"Agent {agentId} | AI Output: {resp.text}");
         Debug.Log($"Agent {agentId} | Action: {resp.action}, Location: {resp.location}");
 
-        // Process LLM response:
+        // Extract reasoning lines (all but final line)
+        string[] lines = resp.text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length > 1)
+        {
+            string reasoning = string.Join("\n", lines.Take(lines.Length - 1));
+            Debug.Log($"Agent {agentId} Reasoning: {reasoning}");
+        }
+        else
+        {
+            Debug.Log($"Agent {agentId} Reasoning: (none provided)");
+        }
+
+        // Process the final action
         switch (resp.action.ToLower())
         {
             case "move":
-                lastMoveLocation = resp.location;
-                isMoving = true;
-                AgentTools.MoveToLocation(navMeshAgent, resp.location);
+                // If not a predefined location, check if it's an agent
+                if (!IsPredefinedLocation(resp.location))
+                {
+                    AgentBrain targetAgent = GetAgentInProximityByName(resp.location);
+                    if (targetAgent != null)
+                    {
+                        // Move to agent
+                        lastMoveLocation = $"agent {resp.location}";
+                        isMoving = true;
+                        navMeshAgent.SetDestination(targetAgent.transform.position);
+                        Debug.Log($"Agent {agentId} moving toward agent {resp.location} at {targetAgent.transform.position}.");
+                    }
+                    else
+                    {
+                        lastActionFeedback = $"Move failed: no agent named {resp.location} nearby.";
+                    }
+                }
+                else
+                {
+                    // Move to a predefined location
+                    lastMoveLocation = resp.location;
+                    isMoving = true;
+                    AgentTools.MoveToLocation(navMeshAgent, resp.location);
+                }
                 break;
+
             case "nothing":
                 lastActionFeedback = "Chose to do nothing.";
                 break;
+
+            case "converse":
+                // If already in conversation, skip re-initialization
+                if (inConversation && converseTarget.Equals(resp.location, StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.Log($"Agent {agentId} is already conversing with {converseTarget}. Ignoring re-init.");
+                }
+                else
+                {
+                    AgentBrain converseAgent = GetAgentInProximityByName(resp.location);
+                    if (converseAgent != null)
+                    {
+                        inConversation = true;
+                        converseTarget = resp.location;
+                        converseRounds = 4; // 4-step conversation
+                        lastActionFeedback = $"Initiated conversation with {resp.location}.";
+                        Debug.Log($"Agent {agentId} entering conversation mode with {resp.location} for {converseRounds} rounds.");
+                    }
+                    else
+                    {
+                        lastActionFeedback = $"Converse failed: no agent named {resp.location} nearby.";
+                    }
+                }
+                break;
+
             default:
                 lastActionFeedback = "Unknown action returned.";
                 break;
+        }
+
+        // If we're in conversation mode, decrement round count each time
+        if (inConversation)
+        {
+            converseRounds--;
+            if (converseRounds <= 0)
+            {
+                inConversation = false;
+                lastActionFeedback = $"Conversation ended with {converseTarget}.";
+                converseTarget = "";
+            }
         }
     }
 
     void Update()
     {
-        // If currently moving, check if we've reached the destination.
         if (isMoving && !navMeshAgent.pathPending)
         {
             if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
@@ -123,30 +209,54 @@ public class AgentBrain : MonoBehaviour
     }
 
     /// <summary>
-    /// Gathers the last action feedback along with a scan of nearby agents.
+    /// Builds feedback about the last action plus a scan of nearby agents.
     /// </summary>
-    /// <returns>A string with the details of the last action and nearby agent IDs.</returns>
     public string GetFeedbackMessage()
     {
-        // Find nearby agents (within 10 units radius).
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 30f);
-        string nearbyAgents = "";
+        string nearbyInfo = "";
         foreach (var hitCollider in hitColliders)
         {
             AgentBrain otherAgent = hitCollider.GetComponent<AgentBrain>();
             if (otherAgent != null && otherAgent.agentId != this.agentId)
             {
-                if (!string.IsNullOrEmpty(nearbyAgents))
-                    nearbyAgents += ", ";
-                nearbyAgents += otherAgent.agentId;
+                Vector3 pos = otherAgent.transform.position;
+                if (!string.IsNullOrEmpty(nearbyInfo))
+                    nearbyInfo += "; ";
+                nearbyInfo += $"{otherAgent.agentId} ({pos.x:F1},{pos.y:F1},{pos.z:F1})";
             }
         }
-        if (string.IsNullOrEmpty(nearbyAgents))
-            nearbyAgents = "none";
+        if (string.IsNullOrEmpty(nearbyInfo))
+            nearbyInfo = "none";
 
-        string feedback = $"Last action: {lastActionFeedback}. Nearby agents: {nearbyAgents}.";
+        string feedback;
+        if (inConversation)
+            feedback = $"[CONVERSE mode with {converseTarget}, rounds remaining: {converseRounds}]";
+        else
+            feedback = $"Last action: {lastActionFeedback}. Nearby agents: {nearbyInfo}.";
+
         Debug.Log($"Agent {agentId} Feedback: {feedback}");
         return feedback;
+    }
+
+    private bool IsPredefinedLocation(string location)
+    {
+        string[] predefined = { "park", "library", "home", "gym" };
+        return predefined.Any(loc => loc.Equals(location, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private AgentBrain GetAgentInProximityByName(string targetName)
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 30f);
+        foreach (var hitCollider in hitColliders)
+        {
+            AgentBrain otherAgent = hitCollider.GetComponent<AgentBrain>();
+            if (otherAgent != null && otherAgent.agentId.Equals(targetName, StringComparison.OrdinalIgnoreCase))
+            {
+                return otherAgent;
+            }
+        }
+        return null;
     }
 }
 

@@ -24,11 +24,8 @@ public class WorldManager : MonoBehaviour
     private void RunSimulationCycle()
     {
         Debug.Log("WorldManager: Running one simulation cycle...");
-
         foreach (var agent in allAgents)
         {
-            // For each agent, get its feedback message (last action and scan of nearby agents)
-            // and use that as the input for the next decision.
             string feedback = agent.GetFeedbackMessage();
             agent.RequestDecision(feedback);
         }
