@@ -11,7 +11,6 @@ public static class AgentTools
     public static void MoveToLocation(NavMeshAgent navMeshAgent, string location)
     {
         Vector3 destination;
-        // Check if location is one of the predefined ones.
         if (IsPredefinedLocation(location))
         {
             switch (location.ToLower())
@@ -22,7 +21,7 @@ public static class AgentTools
                 case "library":
                     destination = new Vector3(325.03f, 50.29f, 407.87f);
                     break;
-                case "o2_Regulator_Room":
+                case "o2_regulator_room":
                     destination = new Vector3(324.3666f, 50.33723f, 463.2347f);
                     break;
                 case "gym":
@@ -50,9 +49,13 @@ public static class AgentTools
         navMeshAgent.SetDestination(destination);
     }
 
-    private static bool IsPredefinedLocation(string location)
+    /// <summary>
+    /// Now public so it’s accessible from AgentBrain.cs.
+    /// Checks if the location string is one of the known, predefined movement spots.
+    /// </summary>
+    public static bool IsPredefinedLocation(string location)
     {
-        string[] predefined = { "park", "library", "02_Regulator_Room", "gym" };
+        string[] predefined = { "park", "library", "o2_regulator_room", "gym" };
         return predefined.Contains(location.ToLower());
     }
 
