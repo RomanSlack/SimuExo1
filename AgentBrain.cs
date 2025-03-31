@@ -33,7 +33,7 @@ You are an autonomous game agent with the following personality:
 
 PRIMARY GOAL: Collaborate with any other agents to locate the missing O2 regulator on this Mars base.
 You can:
-1) MOVE to 'park', 'library', 'home', 'gym', or move toward another agent by naming them.
+1) MOVE to 'park', 'library', 'o2_Regulator_Room', 'gym', or move toward another agent by naming them.
 2) NOTHING: do nothing.
 3) CONVERSE: have a multi-round chat with a specific agent by naming them.
 
@@ -241,7 +241,7 @@ IMPORTANT RULES:
 
     private bool IsPredefinedLocation(string location)
     {
-        string[] predefined = { "park", "library", "home", "gym" };
+        string[] predefined = { "park", "library", "02_Regulator_Room", "gym" };
         return predefined.Any(loc => loc.Equals(location, StringComparison.OrdinalIgnoreCase));
     }
 

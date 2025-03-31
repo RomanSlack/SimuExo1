@@ -22,7 +22,7 @@ public static class AgentTools
                 case "library":
                     destination = new Vector3(325.03f, 50.29f, 407.87f);
                     break;
-                case "home":
+                case "o2_Regulator_Room":
                     destination = new Vector3(324.3666f, 50.33723f, 463.2347f);
                     break;
                 case "gym":
@@ -52,7 +52,7 @@ public static class AgentTools
 
     private static bool IsPredefinedLocation(string location)
     {
-        string[] predefined = { "park", "library", "home", "gym" };
+        string[] predefined = { "park", "library", "02_Regulator_Room", "gym" };
         return predefined.Contains(location.ToLower());
     }
 
