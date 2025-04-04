@@ -226,7 +226,7 @@ Personality: [PERSONALITY_HERE]
 
     public string GetFeedbackMessage()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 30f);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1000f);
         string nearbyInfo = "";
         foreach (var hitCollider in hitColliders)
         {
@@ -252,7 +252,7 @@ Personality: [PERSONALITY_HERE]
 
     private AgentBrain GetAgentInProximityByName(string targetName)
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 30f);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1000f);
         foreach (var hitCollider in hitColliders)
         {
             AgentBrain other = hitCollider.GetComponent<AgentBrain>();
