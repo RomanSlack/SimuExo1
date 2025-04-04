@@ -6,7 +6,7 @@ public static class AgentTools
 {
     /// <summary>
     /// Moves the given NavMeshAgent to a predefined destination based on the location string.
-    /// If the location string is not one of the predefined ones, attempt to interpret it as a target agent's name.
+    /// If the location is not predefined, attempts to interpret it as an agent's name.
     /// </summary>
     public static void MoveToLocation(NavMeshAgent navMeshAgent, string location)
     {
@@ -34,24 +34,17 @@ public static class AgentTools
         }
         else
         {
-            // Otherwise, try to find an agent with matching name within 30 units.
             AgentBrain targetAgent = GetAgentInProximityByName(navMeshAgent.transform.position, location, 30f);
             if (targetAgent != null)
-            {
                 destination = targetAgent.transform.position;
-            }
             else
-            {
-                // If not found, stay in place.
                 destination = navMeshAgent.transform.position;
-            }
         }
         navMeshAgent.SetDestination(destination);
     }
 
     /// <summary>
-    /// Now public so it’s accessible from AgentBrain.cs.
-    /// Checks if the location string is one of the known, predefined movement spots.
+    /// Public method to check if the location string is one of the predefined spots.
     /// </summary>
     public static bool IsPredefinedLocation(string location)
     {

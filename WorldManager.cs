@@ -6,14 +6,14 @@ public class WorldManager : MonoBehaviour
 
     void Start()
     {
-        // Collect all AgentBrain scripts in the scene.
+        // Find all agents in the scene.
         allAgents = FindObjectsOfType<AgentBrain>();
         Debug.Log($"WorldManager: Found {allAgents.Length} agents.");
     }
 
     void Update()
     {
-        // Check if Shift + X is pressed to manually trigger a simulation cycle.
+        // Press Shift+X to trigger a simulation cycle.
         if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
             && Input.GetKeyDown(KeyCode.X))
         {

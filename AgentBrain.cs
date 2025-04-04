@@ -21,17 +21,17 @@ public class AgentBrain : MonoBehaviour
     [SerializeField] private string serverUrl = "http://127.0.0.1:3000/generate";
     [SerializeField] private NavMeshAgent navMeshAgent;
 
-    // Define the personality separately so it can be set per agent.
-    [SerializeField, Tooltip("Set the agent's personality. This will be injected into the system prompt.")]
+    // Modular personality: set per agent in the Inspector.
+    [SerializeField, Tooltip("Set the agent's personality. It will be injected into the system prompt.")]
     private string personality = "You are friendly, logical, and collaborative.";
 
-    // Define a system prompt template with a placeholder for personality.
-    // This template explains the available actions and provides examples.
+    // System prompt template with a placeholder for personality.
+    // This contains all instructions, available actions, and concise examples.
     [TextArea(8, 15)]
     [SerializeField, Tooltip("Base system prompt template. Use [PERSONALITY_HERE] as a placeholder for the agent's personality.")]
     private string systemPromptTemplate = @"
 You are an autonomous game agent.
-Your primary goal: Collaborate with other agents to locate the missing O2 regulator on this Mars base.
+PRIMARY GOAL: Collaborate with other agents to locate the missing O2 regulator on this Mars base.
 
 ACTIONS:
 1) MOVE: <location_or_agent>
@@ -42,26 +42,27 @@ ACTIONS:
    Engage in conversation with another agent.
 
 REQUIREMENTS:
-- Provide a short paragraph of reasoning in your response.
-- The VERY LAST line of your response must start exactly with MOVE:, NOTHING:, or CONVERSE: and contain no extra text.
+- Provide at least one short paragraph of reasoning.
+- The VERY LAST line of your response must start exactly with MOVE:, NOTHING:, or CONVERSE: 
+  and contain no additional text.
 
 EXAMPLES:
 Example MOVE:
-I'm heading to the library because I recall there might be documents about the O2 regulator.
+I'm heading to the library because there might be documents on the O2 regulator.
 MOVE: library
 
 Example NOTHING:
-I see no new clues at the moment, so I will remain here.
+I see no clues at the moment, so I'll stay put.
 NOTHING: do nothing
 
 Example CONVERSE:
-I notice Agent_1 nearby and think they might have useful insights. I'd like to chat.
+I notice Agent_1 nearby and think they could have useful insights. Let's chat.
 CONVERSE: Agent_1
 
 Personality: [PERSONALITY_HERE]
 ";
 
-    // Variables to track last action feedback, movement, conversation state, etc.
+    // Agent state variables.
     private string lastActionFeedback = "No action taken yet.";
     private string lastMoveLocation = "";
     private bool isMoving = false;
@@ -75,11 +76,10 @@ Personality: [PERSONALITY_HERE]
     {
         if (navMeshAgent == null)
             navMeshAgent = GetComponent<NavMeshAgent>();
-
         Debug.Log($"Agent {agentId} started. Waiting for simulation cycle trigger...");
     }
 
-    // Build the final system prompt by injecting the personality into the template.
+    // Build final system prompt by replacing the personality placeholder.
     private string BuildSystemPrompt()
     {
         return systemPromptTemplate.Replace("[PERSONALITY_HERE]", personality);
@@ -120,7 +120,7 @@ Personality: [PERSONALITY_HERE]
         Debug.Log($"Agent {agentId} | AI Output: {resp.text}");
         Debug.Log($"Agent {agentId} | Action: {resp.action}, Location: {resp.location}");
 
-        // Extract and log reasoning (all lines except the final one)
+        // Extract and log reasoning (all lines except the final line)
         string[] lines = resp.text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length > 1)
         {
@@ -132,7 +132,7 @@ Personality: [PERSONALITY_HERE]
             Debug.Log($"Agent {agentId} Reasoning: (none provided)");
         }
 
-        // Process the final action
+        // Process the final action.
         switch (resp.action.ToLower())
         {
             case "move":
@@ -193,8 +193,8 @@ Personality: [PERSONALITY_HERE]
             Debug.Log($"Agent {agentId} is already conversing with {converseTarget}. Ignoring re-init.");
             return;
         }
-        AgentBrain agent = GetAgentInProximityByName(location);
-        if (agent != null)
+        AgentBrain target = GetAgentInProximityByName(location);
+        if (target != null)
         {
             inConversation = true;
             converseTarget = location;
@@ -242,11 +242,9 @@ Personality: [PERSONALITY_HERE]
         if (string.IsNullOrEmpty(nearbyInfo))
             nearbyInfo = "none";
 
-        string feedback;
-        if (inConversation)
-            feedback = $"[CONVERSE mode with {converseTarget}, rounds remaining: {converseRounds}]";
-        else
-            feedback = $"Last action: {lastActionFeedback}. Nearby agents: {nearbyInfo}.";
+        string feedback = inConversation ?
+            $"[CONVERSE mode with {converseTarget}, rounds remaining: {converseRounds}]" :
+            $"Last action: {lastActionFeedback}. Nearby agents: {nearbyInfo}.";
 
         Debug.Log($"Agent {agentId} Feedback: {feedback}");
         return feedback;
