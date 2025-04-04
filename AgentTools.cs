@@ -35,10 +35,7 @@ public static class AgentTools
         else
         {
             AgentBrain targetAgent = GetAgentInProximityByName(navMeshAgent.transform.position, location, 30f);
-            if (targetAgent != null)
-                destination = targetAgent.transform.position;
-            else
-                destination = navMeshAgent.transform.position;
+            destination = targetAgent != null ? targetAgent.transform.position : navMeshAgent.transform.position;
         }
         navMeshAgent.SetDestination(destination);
     }
@@ -48,7 +45,7 @@ public static class AgentTools
     /// </summary>
     public static bool IsPredefinedLocation(string location)
     {
-        string[] predefined = { "park", "library", "cantina", "gym" };
+        string[] predefined = { "park", "library", "cantina", "gym", "o2_regulator_room" };
         return predefined.Contains(location.ToLower());
     }
 
