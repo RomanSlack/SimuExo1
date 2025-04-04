@@ -21,121 +21,107 @@ public class AgentBrain : MonoBehaviour
     [SerializeField] private string serverUrl = "http://127.0.0.1:3000/generate";
     [SerializeField] private NavMeshAgent navMeshAgent;
 
-    // Modular personality (editable per agent).
-    [SerializeField, Tooltip("Set the agent's personality.")] 
+    [SerializeField, Tooltip("Agent's personality inserted into the system prompt on first request.")]
     private string personality = "You are friendly, logical, and collaborative.";
 
-    // System prompt template with placeholder. This contains instructions, actions, and examples.
     [TextArea(8, 15)]
-    [SerializeField, Tooltip("Base system prompt template. Use [PERSONALITY_HERE] as a placeholder.")]
+    [SerializeField, Tooltip("System prompt template (use [PERSONALITY_HERE] placeholder).")]
     private string systemPromptTemplate = @"
 You are an autonomous game agent.
-PRIMARY GOAL: Collaborate with other agents to locate the missing O2 regulator on this Mars base.
+PRIMARY GOAL: Collaborate with other agents to find and fix the broken O2 regulator on this Mars base.
 
 ACTIONS:
 1) MOVE: <location_or_agent>
-   Valid locations: park, library, gym, o2_regulator_room.
-   You may also move toward another agent by naming them.
-2) NOTHING: do nothing.
+   Valid locations: park, library, gym, cantina.
+2) NOTHING: do nothing
 3) CONVERSE: <agent_name>
-   Engage in conversation with another agent.
+   Engage in conversation with the specified agent.
 
 REQUIREMENTS:
 - Provide at least one short paragraph of reasoning.
-- The VERY LAST line must start exactly with MOVE:, NOTHING:, or CONVERSE: (with no extra text).
+- The last line must start with MOVE:, NOTHING:, or CONVERSE: with no other text.
 
 EXAMPLES:
 Example MOVE:
-I'm heading to the library because I might find documents on the O2 regulator.
+I think the library has info on the O2 regulator specs.
 MOVE: library
 
 Example NOTHING:
-I see no clues, so I'll remain here.
+No new info, so I'll wait here.
 NOTHING: do nothing
 
 Example CONVERSE:
-I notice Agent_1 nearby and believe they could have useful insights. Let's chat.
-CONVERSE: Agent_1
+Agent_2 might have more details, I'd like to chat with them.
+CONVERSE: Agent_2
 
 Personality: [PERSONALITY_HERE]
 ";
 
-    // State variables.
+    private bool firstRequest = true;
     private string lastActionFeedback = "No action taken yet.";
     private string lastMoveLocation = "";
     private bool isMoving = false;
     private bool inConversation = false;
     private string converseTarget = "";
     private int converseRounds = 0;
-    // Flag to send system prompt only on first request.
-    private bool firstRequest = true;
 
     private static readonly HttpClient httpClient = new HttpClient();
 
     void Start()
     {
-        if (navMeshAgent == null)
-            navMeshAgent = GetComponent<NavMeshAgent>();
-        Debug.Log($"Agent {agentId} started. Waiting for simulation cycle trigger...");
+        if (navMeshAgent == null) navMeshAgent = GetComponent<NavMeshAgent>();
+        Debug.Log($"{agentId} started. Ready for simulation steps...");
     }
 
-    // Build final system prompt by replacing placeholder with personality.
     private string BuildSystemPrompt()
     {
         return systemPromptTemplate.Replace("[PERSONALITY_HERE]", personality);
     }
 
-    public void RequestDecision(string input)
+    public void RequestDecision(string feedbackInput)
     {
-        // Send full system prompt only on first request.
-        string systemPromptToSend = firstRequest ? BuildSystemPrompt() : "";
+        // Send system prompt only first time
+        string sp = firstRequest ? BuildSystemPrompt() : "";
         firstRequest = false;
-        Debug.Log($"Agent {agentId} sending decision request with input:\n{input}");
-        StartCoroutine(SendToAI(input, systemPromptToSend));
-    }
 
-    private IEnumerator SendToAI(string input, string systemPromptToSend)
-    {
-        RequestData requestData = new RequestData
+        var reqData = new RequestData
         {
             agent_id = agentId,
-            user_input = input,
-            system_prompt = systemPromptToSend  // Empty string if not first request.
+            user_input = feedbackInput,
+            system_prompt = sp
         };
+        StartCoroutine(SendToAI(reqData));
+    }
 
-        string jsonString = JsonUtility.ToJson(requestData);
-        Debug.Log($"Agent {agentId} Request JSON: {jsonString}");
+    private IEnumerator SendToAI(RequestData reqData)
+    {
+        string jsonStr = JsonUtility.ToJson(reqData);
+        Debug.Log($"{agentId} POSTing: {jsonStr}");
 
-        var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-        Task<HttpResponseMessage> postTask = httpClient.PostAsync(serverUrl, content);
+        var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
+        var postTask = httpClient.PostAsync(serverUrl, content);
         yield return new WaitUntil(() => postTask.IsCompleted);
 
-        HttpResponseMessage response = postTask.Result;
-        if (!response.IsSuccessStatusCode)
+        if (!postTask.Result.IsSuccessStatusCode)
         {
-            Debug.LogError($"Agent {agentId} Server error: {response.StatusCode}");
+            Debug.LogError($"{agentId} server error: {postTask.Result.StatusCode}");
             yield break;
         }
 
-        string responseJson = response.Content.ReadAsStringAsync().Result;
-        GenerateResponse resp = JsonUtility.FromJson<GenerateResponse>(responseJson);
+        string respJson = postTask.Result.Content.ReadAsStringAsync().Result;
+        var resp = JsonUtility.FromJson<GenerateResponse>(respJson);
 
-        Debug.Log($"Agent {agentId} | AI Output: {resp.text}");
-        Debug.Log($"Agent {agentId} | Action: {resp.action}, Location: {resp.location}");
+        Debug.Log($"{agentId} AI Output: {resp.text}");
+        Debug.Log($"{agentId} Action: {resp.action}, Location: {resp.location}");
 
-        // Log reasoning (all lines except final line).
-        string[] lines = resp.text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        // Extract reasoning from all but last line
+        var lines = resp.text.Split('\n');
         if (lines.Length > 1)
         {
             string reasoning = string.Join("\n", lines.Take(lines.Length - 1));
-            Debug.Log($"Agent {agentId} Reasoning: {reasoning}");
-        }
-        else
-        {
-            Debug.Log($"Agent {agentId} Reasoning: (none provided)");
+            Debug.Log($"{agentId} Reasoning: {reasoning}");
         }
 
-        // Process final action.
         switch (resp.action.ToLower())
         {
             case "move":
@@ -148,10 +134,11 @@ Personality: [PERSONALITY_HERE]
                 HandleConverse(resp.location);
                 break;
             default:
-                lastActionFeedback = "Unknown action returned.";
+                lastActionFeedback = "Unknown action.";
                 break;
         }
 
+        // Decrement conversation rounds if in conversation
         if (inConversation)
         {
             converseRounds--;
@@ -168,17 +155,18 @@ Personality: [PERSONALITY_HERE]
     {
         if (!AgentTools.IsPredefinedLocation(location))
         {
-            AgentBrain targetAgent = GetAgentInProximityByName(location);
-            if (targetAgent != null)
+            // Possibly moving to an agent
+            var target = FindAgent(location);
+            if (target != null)
             {
                 lastMoveLocation = $"agent {location}";
                 isMoving = true;
-                navMeshAgent.SetDestination(targetAgent.transform.position);
-                Debug.Log($"Agent {agentId} moving toward agent {location} at {targetAgent.transform.position}.");
+                navMeshAgent.SetDestination(target.transform.position);
+                Debug.Log($"{agentId} moving toward agent {location} at {target.transform.position}.");
             }
             else
             {
-                lastActionFeedback = $"Move failed: no agent named {location} nearby.";
+                lastActionFeedback = $"Move failed: no agent named {location}.";
             }
         }
         else
@@ -193,33 +181,28 @@ Personality: [PERSONALITY_HERE]
     {
         if (inConversation && converseTarget.Equals(location, StringComparison.OrdinalIgnoreCase))
         {
-            Debug.Log($"Agent {agentId} is already conversing with {converseTarget}. Ignoring re-init.");
+            Debug.Log($"{agentId} already conversing with {location}.");
             return;
         }
-        AgentBrain target = GetAgentInProximityByName(location);
+        var target = FindAgent(location);
         if (target != null)
         {
             inConversation = true;
             converseTarget = location;
-            converseRounds = 4;
+            converseRounds = 3; // or 4, your choice
             lastActionFeedback = $"Initiated conversation with {location}.";
-            Debug.Log($"Agent {agentId} entering conversation mode with {location} for {converseRounds} rounds.");
-            // Forward this conversation start to the target agent's session:
-            // (This helps establish bilateral conversation.)
-            target.ReceiveConversationMessage($"Agent {agentId} says: Let's converse about the O2 regulator. CONVERSE: {agentId}");
+            Debug.Log($"{agentId} in conversation mode with {location} for {converseRounds} rounds.");
         }
         else
         {
-            lastActionFeedback = $"Converse failed: no agent named {location} nearby.";
+            lastActionFeedback = $"Converse failed: no agent named {location}.";
         }
     }
 
-    // This method is called by other agents when a conversation message is forwarded.
-    public void ReceiveConversationMessage(string message)
+    private AgentBrain FindAgent(string targetName)
     {
-        Debug.Log($"Agent {agentId} received conversation message: {message}");
-        // Append the incoming conversation message to the agent's session.
-        // (For production, you might want to add a special marker or role.)
+        var allAgents = FindObjectsOfType<AgentBrain>();
+        return allAgents.FirstOrDefault(a => a.agentId.Equals(targetName, StringComparison.OrdinalIgnoreCase));
     }
 
     void Update()
@@ -228,11 +211,11 @@ Personality: [PERSONALITY_HERE]
         {
             if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
             {
-                if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f)
+                if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude < 0.01f)
                 {
                     isMoving = false;
-                    lastActionFeedback = $"Used move tool to successfully move to {lastMoveLocation}.";
-                    Debug.Log($"Agent {agentId} reached destination: {lastMoveLocation}");
+                    lastActionFeedback = $"Used move tool to arrive at {lastMoveLocation}.";
+                    Debug.Log($"{agentId} arrived at {lastMoveLocation}.");
                 }
             }
         }
@@ -240,41 +223,26 @@ Personality: [PERSONALITY_HERE]
 
     public string GetFeedbackMessage()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1000f);
-        string nearbyInfo = "";
-        foreach (var hitCollider in hitColliders)
+        // Find nearby agents
+        var hits = Physics.OverlapSphere(transform.position, 50f);
+        var neighborInfo = "";
+        foreach (var h in hits)
         {
-            AgentBrain otherAgent = hitCollider.GetComponent<AgentBrain>();
-            if (otherAgent != null && otherAgent.agentId != this.agentId)
+            var other = h.GetComponent<AgentBrain>();
+            if (other && other.agentId != agentId)
             {
-                Vector3 pos = otherAgent.transform.position;
-                if (!string.IsNullOrEmpty(nearbyInfo))
-                    nearbyInfo += "; ";
-                nearbyInfo += $"{otherAgent.agentId} ({pos.x:F1},{pos.y:F1},{pos.z:F1})";
+                Vector3 pos = other.transform.position;
+                if (!string.IsNullOrEmpty(neighborInfo)) neighborInfo += "; ";
+                neighborInfo += $"{other.agentId} ({pos.x:F1},{pos.y:F1},{pos.z:F1})";
             }
         }
-        if (string.IsNullOrEmpty(nearbyInfo))
-            nearbyInfo = "none";
+        if (string.IsNullOrEmpty(neighborInfo)) neighborInfo = "none";
 
-        string feedback = inConversation ?
-            $"[CONVERSE mode with {converseTarget}, rounds remaining: {converseRounds}]" :
-            $"Last action: {lastActionFeedback}. Nearby agents: {nearbyInfo}.";
-        Debug.Log($"Agent {agentId} Feedback: {feedback}");
+        string feedback = inConversation
+            ? $"[CONVERSE mode with {converseTarget}, rounds left: {converseRounds}]"
+            : $"Last action: {lastActionFeedback}. Nearby: {neighborInfo}.";
+        Debug.Log($"{agentId} feedback: {feedback}");
         return feedback;
-    }
-
-    private AgentBrain GetAgentInProximityByName(string targetName)
-    {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1000f);
-        foreach (var hitCollider in hitColliders)
-        {
-            AgentBrain other = hitCollider.GetComponent<AgentBrain>();
-            if (other != null && other.agentId.Equals(targetName, StringComparison.OrdinalIgnoreCase))
-            {
-                return other;
-            }
-        }
-        return null;
     }
 }
 
