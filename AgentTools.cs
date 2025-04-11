@@ -6,7 +6,7 @@ public static class AgentTools
 {
     /// <summary>
     /// Moves the given NavMeshAgent to a predefined destination.
-    /// If not predefined, attempts to interpret location as an agent's name.
+    /// If not predefined, attempts to interpret the location as an agent's name.
     /// </summary>
     public static void MoveToLocation(NavMeshAgent navMeshAgent, string location)
     {
@@ -44,7 +44,7 @@ public static class AgentTools
     }
 
     /// <summary>
-    /// Checks if a location string is one of the predefined spots.
+    /// Public method to check if the location string is one of the predefined spots.
     /// </summary>
     public static bool IsPredefinedLocation(string location)
     {
