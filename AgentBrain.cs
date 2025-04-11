@@ -13,6 +13,7 @@ public class RequestData
     public string agent_id;
     public string user_input;
     public string system_prompt;
+    public string task;  // New task field
 }
 
 public class AgentBrain : MonoBehaviour
@@ -21,37 +22,43 @@ public class AgentBrain : MonoBehaviour
     [SerializeField] private string serverUrl = "http://127.0.0.1:3000/generate";
     [SerializeField] private NavMeshAgent navMeshAgent;
 
-    [SerializeField, Tooltip("Agent's personality inserted into the system prompt on first request.")]
+    [SerializeField, Tooltip("Set the agent's personality. It will be injected into the system prompt on first request.")]
     private string personality = "You are friendly, logical, and collaborative.";
 
+    [SerializeField, Tooltip("Set the agent's current task (to help keep it on track).")]
+    private string task = "Default task: Investigate the O2 regulator issue.";
+
+    // System prompt template with placeholders for personality and task.
     [TextArea(8, 15)]
-    [SerializeField, Tooltip("System prompt template (use [PERSONALITY_HERE] placeholder).")]
+    [SerializeField, Tooltip("Base system prompt template. Use [PERSONALITY_HERE] and [TASK_HERE] as placeholders.")]
     private string systemPromptTemplate = @"
 You are an autonomous game agent.
 PRIMARY GOAL: Collaborate with other agents to find and fix the broken O2 regulator on this Mars base.
+Current Task: [TASK_HERE]
 
 ACTIONS:
 1) MOVE: <location_or_agent>
    Valid locations: park, library, gym, cantina.
-2) NOTHING: do nothing
+   You may also move toward another agent by naming them.
+2) NOTHING: do nothing.
 3) CONVERSE: <agent_name>
    Engage in conversation with the specified agent.
 
 REQUIREMENTS:
 - Provide at least one short paragraph of reasoning.
-- The last line must start with MOVE:, NOTHING:, or CONVERSE: with no other text.
+- The very last line of your response must begin exactly with MOVE:, NOTHING:, or CONVERSE: (with no extra text).
 
 EXAMPLES:
 Example MOVE:
-I think the library has info on the O2 regulator specs.
+I think the library might have documents on the O2 regulator.
 MOVE: library
 
 Example NOTHING:
-No new info, so I'll wait here.
+No new clues, so I will stay put.
 NOTHING: do nothing
 
 Example CONVERSE:
-Agent_2 might have more details, I'd like to chat with them.
+I see Agent_2 nearby and believe they could have useful insights.
 CONVERSE: Agent_2
 
 Personality: [PERSONALITY_HERE]
@@ -69,26 +76,30 @@ Personality: [PERSONALITY_HERE]
 
     void Start()
     {
-        if (navMeshAgent == null) navMeshAgent = GetComponent<NavMeshAgent>();
+        if (navMeshAgent == null)
+            navMeshAgent = GetComponent<NavMeshAgent>();
         Debug.Log($"{agentId} started. Ready for simulation steps...");
     }
 
+    // Build the final system prompt by injecting personality and task.
     private string BuildSystemPrompt()
     {
-        return systemPromptTemplate.Replace("[PERSONALITY_HERE]", personality);
+        return systemPromptTemplate.Replace("[PERSONALITY_HERE]", personality)
+                                   .Replace("[TASK_HERE]", task);
     }
 
     public void RequestDecision(string feedbackInput)
     {
-        // Send system prompt only first time
+        // Send full system prompt only on first request.
         string sp = firstRequest ? BuildSystemPrompt() : "";
         firstRequest = false;
-
+        Debug.Log($"{agentId} sending decision request with input:\n{feedbackInput}");
         var reqData = new RequestData
         {
             agent_id = agentId,
             user_input = feedbackInput,
-            system_prompt = sp
+            system_prompt = sp,
+            task = task
         };
         StartCoroutine(SendToAI(reqData));
     }
@@ -114,12 +125,16 @@ Personality: [PERSONALITY_HERE]
         Debug.Log($"{agentId} AI Output: {resp.text}");
         Debug.Log($"{agentId} Action: {resp.action}, Location: {resp.location}");
 
-        // Extract reasoning from all but last line
+        // Log reasoning (all lines except final line)
         var lines = resp.text.Split('\n');
         if (lines.Length > 1)
         {
             string reasoning = string.Join("\n", lines.Take(lines.Length - 1));
             Debug.Log($"{agentId} Reasoning: {reasoning}");
+        }
+        else
+        {
+            Debug.Log($"{agentId} Reasoning: (none provided)");
         }
 
         switch (resp.action.ToLower())
@@ -138,7 +153,6 @@ Personality: [PERSONALITY_HERE]
                 break;
         }
 
-        // Decrement conversation rounds if in conversation
         if (inConversation)
         {
             converseRounds--;
@@ -155,7 +169,6 @@ Personality: [PERSONALITY_HERE]
     {
         if (!AgentTools.IsPredefinedLocation(location))
         {
-            // Possibly moving to an agent
             var target = FindAgent(location);
             if (target != null)
             {
@@ -181,7 +194,7 @@ Personality: [PERSONALITY_HERE]
     {
         if (inConversation && converseTarget.Equals(location, StringComparison.OrdinalIgnoreCase))
         {
-            Debug.Log($"{agentId} already conversing with {location}.");
+            Debug.Log($"{agentId} is already conversing with {converseTarget}. Ignoring re-init.");
             return;
         }
         var target = FindAgent(location);
@@ -189,20 +202,29 @@ Personality: [PERSONALITY_HERE]
         {
             inConversation = true;
             converseTarget = location;
-            converseRounds = 3; // or 4, your choice
+            converseRounds = 3;
             lastActionFeedback = $"Initiated conversation with {location}.";
-            Debug.Log($"{agentId} in conversation mode with {location} for {converseRounds} rounds.");
+            Debug.Log($"{agentId} entering conversation mode with {location} for {converseRounds} rounds.");
+            // Optionally, you can trigger an immediate RequestDecision on the target agent here.
+            target.ReceiveConversationMessage($"[Forwarded from {agentId}]: Let's converse about our tasks. CONVERSE: {agentId}");
         }
         else
         {
-            lastActionFeedback = $"Converse failed: no agent named {location}.";
+            lastActionFeedback = $"Converse failed: no agent named {location} nearby.";
         }
+    }
+
+    // Called when another agent forwards a conversation message.
+    public void ReceiveConversationMessage(string message)
+    {
+        Debug.Log($"{agentId} received conversation message: {message}");
+        // You could choose to automatically trigger a decision request here.
     }
 
     private AgentBrain FindAgent(string targetName)
     {
-        var allAgents = FindObjectsOfType<AgentBrain>();
-        return allAgents.FirstOrDefault(a => a.agentId.Equals(targetName, StringComparison.OrdinalIgnoreCase));
+        var all = FindObjectsOfType<AgentBrain>();
+        return all.FirstOrDefault(a => a.agentId.Equals(targetName, StringComparison.OrdinalIgnoreCase));
     }
 
     void Update()
@@ -223,24 +245,22 @@ Personality: [PERSONALITY_HERE]
 
     public string GetFeedbackMessage()
     {
-        // Find nearby agents
         var hits = Physics.OverlapSphere(transform.position, 50f);
-        var neighborInfo = "";
+        var info = "";
         foreach (var h in hits)
         {
             var other = h.GetComponent<AgentBrain>();
-            if (other && other.agentId != agentId)
+            if (other != null && other.agentId != agentId)
             {
                 Vector3 pos = other.transform.position;
-                if (!string.IsNullOrEmpty(neighborInfo)) neighborInfo += "; ";
-                neighborInfo += $"{other.agentId} ({pos.x:F1},{pos.y:F1},{pos.z:F1})";
+                if (!string.IsNullOrEmpty(info)) info += "; ";
+                info += $"{other.agentId} ({pos.x:F1},{pos.y:F1},{pos.z:F1})";
             }
         }
-        if (string.IsNullOrEmpty(neighborInfo)) neighborInfo = "none";
-
+        if (string.IsNullOrEmpty(info)) info = "none";
         string feedback = inConversation
             ? $"[CONVERSE mode with {converseTarget}, rounds left: {converseRounds}]"
-            : $"Last action: {lastActionFeedback}. Nearby: {neighborInfo}.";
+            : $"Last action: {lastActionFeedback}. Nearby: {info}.";
         Debug.Log($"{agentId} feedback: {feedback}");
         return feedback;
     }

@@ -5,8 +5,8 @@ using System.Linq;
 public static class AgentTools
 {
     /// <summary>
-    /// Moves the given NavMeshAgent to a predefined destination based on the location string.
-    /// If the location is not predefined, attempts to interpret it as an agent's name.
+    /// Moves the given NavMeshAgent to a predefined destination.
+    /// If not predefined, attempts to interpret location as an agent's name.
     /// </summary>
     public static void MoveToLocation(NavMeshAgent navMeshAgent, string location)
     {
@@ -27,6 +27,9 @@ public static class AgentTools
                 case "gym":
                     destination = new Vector3(300.5f, 50.23723f, 420.8247f);
                     break;
+                case "o2_regulator_room":
+                    destination = new Vector3(324.3666f, 50.33723f, 463.2347f);
+                    break;
                 default:
                     destination = navMeshAgent.transform.position;
                     break;
@@ -41,7 +44,7 @@ public static class AgentTools
     }
 
     /// <summary>
-    /// Public method to check if the location string is one of the predefined spots.
+    /// Checks if a location string is one of the predefined spots.
     /// </summary>
     public static bool IsPredefinedLocation(string location)
     {

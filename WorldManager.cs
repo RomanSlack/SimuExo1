@@ -6,16 +6,13 @@ public class WorldManager : MonoBehaviour
 
     void Start()
     {
-        // Find all agents in the scene.
         allAgents = FindObjectsOfType<AgentBrain>();
         Debug.Log($"WorldManager: Found {allAgents.Length} agents.");
     }
 
     void Update()
     {
-        // Press Shift+X to trigger a simulation cycle.
-        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
-            && Input.GetKeyDown(KeyCode.X))
+        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.X))
         {
             RunSimulationCycle();
         }
