@@ -34,7 +34,7 @@ public class WorldManager : MonoBehaviour
     // Component references
     private HttpServer httpServer;
     private BackendCommunicator backendCommunicator;
-    private EnvironmentReporter environmentReporter;
+    [SerializeField] private EnvironmentReporter environmentReporter;
     
     // Internal state
     private List<AgentController> activeAgents = new List<AgentController>();
@@ -55,7 +55,16 @@ public class WorldManager : MonoBehaviour
         // Get component references
         httpServer = FindObjectOfType<HttpServer>();
         backendCommunicator = FindObjectOfType<BackendCommunicator>();
-        environmentReporter = FindObjectOfType<EnvironmentReporter>();
+        
+        // Find the EnvironmentReporter if not assigned in the inspector
+        if (environmentReporter == null)
+        {
+            environmentReporter = FindObjectOfType<EnvironmentReporter>();
+            if (environmentReporter == null)
+            {
+                Debug.LogWarning("No EnvironmentReporter found. Agent environment detection will be limited.");
+            }
+        }
         
         // Initialize locations
         InitializeLocations();
@@ -79,6 +88,12 @@ public class WorldManager : MonoBehaviour
         if (runAutomatically)
         {
             StartSimulation();
+        }
+        
+        // Prime agents through the backend (does nothing if they're already primed)
+        if (backendCommunicator != null)
+        {
+            StartCoroutine(PrimeAgents());
         }
         
         initialized = true;
@@ -244,11 +259,31 @@ public class WorldManager : MonoBehaviour
         if (agentPrefab != null)
         {
             agentObject = Instantiate(agentPrefab, agentsContainer);
+            
+            // Make sure it's on the Agent layer for detection
+            agentObject.layer = LayerMask.NameToLayer("Agent");
+            
+            // Add "Agent" tag if it exists
+            try {
+                agentObject.tag = "Agent";
+            } catch (UnityException) {
+                Debug.LogWarning("'Agent' tag not defined in project. Consider adding it for better agent detection.");
+            }
         }
         else
         {
             agentObject = new GameObject($"Agent_{agentId}");
             agentObject.transform.SetParent(agentsContainer);
+            
+            // Make sure it's on the Agent layer for detection
+            agentObject.layer = LayerMask.NameToLayer("Agent");
+            
+            // Add "Agent" tag if it exists
+            try {
+                agentObject.tag = "Agent";
+            } catch (UnityException) {
+                Debug.LogWarning("'Agent' tag not defined in project. Consider adding it for better agent detection.");
+            }
             
             // Add visual representation
             GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -259,8 +294,8 @@ public class WorldManager : MonoBehaviour
             agentObject.AddComponent<NavMeshAgent>();
         }
         
-        // Set name and initialize
-        agentObject.name = $"Agent_{agentId}";
+        // Set name and initialize - ensure it doesn't keep the default name from the prefab
+        agentObject.name = $"Agent_{agentId.Replace("Agent_", "")}";
         
         // Add controller if missing
         AgentController controller = agentObject.GetComponent<AgentController>();
@@ -440,9 +475,20 @@ public class WorldManager : MonoBehaviour
         }
     }
     
+    [Header("Simulation Status")]
+    [SerializeField] private bool agentsPrimed = false;
+    
     public void RunSimulationCycle()
     {
         Debug.Log("Running simulation cycle...");
+        
+        // If agents haven't been primed yet, prime them first
+        if (!agentsPrimed && backendCommunicator != null)
+        {
+            Debug.Log("Priming agents before first simulation cycle...");
+            StartCoroutine(PrimeAndRunCycle());
+            return;
+        }
         
         foreach (var agent in activeAgents)
         {
@@ -470,11 +516,100 @@ public class WorldManager : MonoBehaviour
         }
     }
     
+    private IEnumerator PrimeAndRunCycle()
+    {
+        // Create the request for priming all agents
+        Dictionary<string, object> requestData = new Dictionary<string, object>
+        {
+            { "force", false } // Don't force re-priming of already primed agents
+        };
+        
+        bool primeSuccess = false;
+        
+        // Send the request to the backend
+        yield return backendCommunicator.SendRequest(
+            "POST", 
+            "/agents/prime", 
+            requestData,
+            (success, response) => {
+                if (success)
+                {
+                    Debug.Log("Successfully primed agents for simulation");
+                    primeSuccess = true;
+                    agentsPrimed = true;
+                }
+                else
+                {
+                    Debug.LogWarning($"Failed to prime agents: {response}");
+                }
+            }
+        );
+        
+        // If successful, continue with the simulation cycle
+        if (primeSuccess)
+        {
+            // Small delay to let the priming "sink in"
+            yield return new WaitForSeconds(0.5f);
+            
+            // Now run the actual simulation
+            RunSimulationCycle();
+        }
+    }
+    
     private string GetAgentFeedback(AgentController agent)
     {
-        // Simple feedback for now - in a real implementation this would use EnvironmentReporter
-        var agentState = agent.GetAgentState();
-        return $"Agent {agent.agentId} is at {agentState["location"]} with status: {agentState["status"]}";
+        if (environmentReporter == null)
+        {
+            // Simple fallback feedback if no EnvironmentReporter is available
+            var simpleAgentState = agent.GetAgentState();
+            return $"Agent {agent.agentId} is at {simpleAgentState["location"]} with status: {simpleAgentState["status"]}";
+        }
+        
+        // Get detailed environment state from the EnvironmentReporter
+        var envState = environmentReporter.GetEnvironmentState(agent.agentId);
+        
+        // Check if there are nearby agents
+        string nearbyAgents = "No other agents nearby.";
+        if (envState.ContainsKey("agents") && envState["agents"] is List<Dictionary<string, object>> agents && agents.Count > 1)
+        {
+            List<string> agentDescriptions = new List<string>();
+            foreach (var otherAgent in agents)
+            {
+                if (otherAgent["id"].ToString() != agent.agentId) // Skip the current agent
+                {
+                    string status = otherAgent.ContainsKey("status") ? otherAgent["status"].ToString() : "Unknown";
+                    agentDescriptions.Add($"{otherAgent["id"]} ({status})");
+                }
+            }
+            
+            if (agentDescriptions.Count > 0)
+            {
+                nearbyAgents = $"Nearby agents: {string.Join(", ", agentDescriptions)}";
+            }
+        }
+        
+        // Check if there are nearby objects
+        string nearbyObjects = "No notable objects nearby.";
+        if (envState.ContainsKey("objects") && envState["objects"] is List<Dictionary<string, object>> objects && objects.Count > 0)
+        {
+            List<string> objectDescriptions = new List<string>();
+            foreach (var obj in objects)
+            {
+                string name = obj.ContainsKey("name") ? obj["name"].ToString() : "Unknown object";
+                string description = obj.ContainsKey("description") && obj["description"] != null 
+                    ? $" - {obj["description"]}" : "";
+                objectDescriptions.Add($"{name}{description}");
+            }
+            
+            if (objectDescriptions.Count > 0)
+            {
+                nearbyObjects = $"Nearby objects: {string.Join(", ", objectDescriptions)}";
+            }
+        }
+        
+        // Construct the feedback
+        var currentAgentState = agent.GetAgentState();
+        return $"Agent {agent.agentId} is at {currentAgentState["location"]} with status: {currentAgentState["status"]}.\n{nearbyAgents}\n{nearbyObjects}";
     }
     
     private IEnumerator RequestAgentDecisionAsync(AgentController agent, string environmentContext)
@@ -639,6 +774,38 @@ public class WorldManager : MonoBehaviour
         {
             RemoveAgents(currentCount - targetCount);
         }
+    }
+    
+    // Prime agents with initial context before simulation
+    private IEnumerator PrimeAgents()
+    {
+        // Allow some time for everything to initialize
+        yield return new WaitForSeconds(2.0f);
+        
+        Debug.Log("Priming agents with initial context...");
+        
+        // Create the request for priming all agents
+        Dictionary<string, object> requestData = new Dictionary<string, object>
+        {
+            { "force", false } // Don't force re-priming of already primed agents
+        };
+        
+        // Send the request to the backend
+        yield return backendCommunicator.SendRequest(
+            "POST", 
+            "/agents/prime", 
+            requestData,
+            (success, response) => {
+                if (success)
+                {
+                    Debug.Log("Successfully primed agents for simulation");
+                }
+                else
+                {
+                    Debug.LogWarning($"Failed to prime agents: {response}");
+                }
+            }
+        );
     }
     
     // Debug visualization

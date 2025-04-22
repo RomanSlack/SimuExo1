@@ -10,7 +10,7 @@ using System.Linq;
 public class AgentController : MonoBehaviour
 {
     [Header("Agent Configuration")]
-    [SerializeField] public string agentId = "Agent_Default";
+    [SerializeField] public string agentId = "Agent_Unnamed";
     [SerializeField] private float movementSpeed = 3.5f;
     [SerializeField] private float turnSpeed = 120f;
     [SerializeField] private float stoppingDistance = 0.5f;
@@ -23,7 +23,7 @@ public class AgentController : MonoBehaviour
     [SerializeField] private float decelerationDistance = 1.5f;
     
     [Header("Status")]
-    [SerializeField] private string currentLocation = "";
+    [SerializeField] private string currentLocation = "center"; // Default starting location
     [SerializeField] private string desiredLocation = "";
     [SerializeField] private string currentStatus = "Idle";
     [SerializeField] private bool isMoving = false;

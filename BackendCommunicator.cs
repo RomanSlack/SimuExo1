@@ -377,7 +377,7 @@ public class BackendCommunicator : MonoBehaviour
         return await taskCompletionSource.Task;
     }
     
-    private IEnumerator SendRequest(string method, string endpoint, object data, Action<bool, string> callback, int retryCount = 0)
+    public IEnumerator SendRequest(string method, string endpoint, object data, Action<bool, string> callback, int retryCount = 0)
     {
         string url = $"{backendUrl}{endpoint}";
         UnityWebRequest request = null;

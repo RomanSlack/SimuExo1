@@ -18,8 +18,9 @@ public class EnvironmentReporter : MonoBehaviour
     
     [Header("Object Tags")]
     [SerializeField] private List<string> interactableObjectTags = new List<string> { 
-        "Untagged", "Respawn", "Finish", "EditorOnly", "Player"
-    }; // Using standard Unity tags as defaults
+        "Untagged", "Respawn", "Finish", "EditorOnly", "Player", "Agent", 
+        "Building", "Interactable", "Item", "Door", "Resource", "Container"
+    }; // Extended list of tags - Unity will ignore those that don't exist
     
     [Header("Debug")]
     [SerializeField] private bool showDebugVisualization = true;
