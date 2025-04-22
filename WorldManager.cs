@@ -10,9 +10,12 @@ public class WorldManager : MonoBehaviour
 {
     [Header("Agent Management")]
     [SerializeField] private GameObject agentPrefab;
-    [SerializeField] private Transform agentsContainer;
+    [SerializeField] public Transform agentsContainer; // Make public so SceneSetupManager can access it
     [SerializeField] private int maxAgents = 20;
     [SerializeField] private bool autoInitializeAgents = true;
+    [SerializeField] private float spawnYPosition = 47.5f; // Exact Y value for agent spawning
+    [SerializeField] private Vector3 spawnCenterPosition = new Vector3(336.7f, 47.5f, 428.61f); // Central spawn position
+    [SerializeField] private float spawnRandomOffset = 5.0f; // Random offset for X and Z (in units)
     
     [Header("Environment")]
     [SerializeField] private bool usePredefinedLocations = true;
@@ -24,6 +27,9 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private KeyCode manualStepKey = KeyCode.X;
     [SerializeField] private KeyCode modifierKey = KeyCode.LeftShift;
     [SerializeField] private bool pauseSimulationOnError = true;
+    
+    [Header("Debug Visualization")]
+    [SerializeField] private bool showDebugInfo = true;
     
     // Component references
     private HttpServer httpServer;
@@ -117,8 +123,8 @@ public class WorldManager : MonoBehaviour
             AddLocationIfMissing("gym", new Vector3(300.5f, 50.23723f, 420.8247f));
             AddLocationIfMissing("o2_regulator_room", new Vector3(324.3666f, 50.33723f, 463.2347f));
             
-            // Add a central fallback position known to be on the NavMesh
-            AddLocationIfMissing("center", new Vector3(325.0f, 50.0f, 425.0f));
+            // Add a central fallback position known to be on the NavMesh (with exact Y coordinate)
+            AddLocationIfMissing("center", new Vector3(spawnCenterPosition.x, spawnYPosition, spawnCenterPosition.z));
         }
         
         Debug.Log($"Initialized {locationPositions.Count} locations");
@@ -188,11 +194,35 @@ public class WorldManager : MonoBehaviour
         }
     }
     
+    [Header("Agent Initialization")]
+    [SerializeField] private int initialAgentCount = 2; // Number of agents to spawn on startup
+    [SerializeField] private string[] agentNames = new string[] { "Agent_A", "Agent_B", "Agent_C", "Agent_D", "Agent_E" };
+    [SerializeField] private string[] agentPersonalities = new string[] {
+        "Friendly and helpful. Expert in Mars environmental systems.",
+        "Analytical and logical. Specializes in electronics and maintenance.",
+        "Creative and curious. Interested in exploring and discovering new things.",
+        "Cautious and detail-oriented. Focuses on safety protocols and risk assessment.",
+        "Optimistic and adaptable. Excels at finding solutions to unexpected problems."
+    };
+
     private void InitializeDefaultAgents()
     {
-        // Create some default agents for testing
-        CreateNewAgent("Agent_A", "Friendly and helpful. Expert in Mars environmental systems.", "library");
-        CreateNewAgent("Agent_B", "Analytical and logical. Specializes in electronics and maintenance.", "cantina");
+        // Cap initial count to available names and max agents
+        int count = Mathf.Min(initialAgentCount, agentNames.Length, maxAgents);
+        Debug.Log($"Initializing {count} default agents around {spawnCenterPosition}");
+        
+        for (int i = 0; i < count; i++)
+        {
+            string name = agentNames[i];
+            string personality = i < agentPersonalities.Length ? agentPersonalities[i] : agentPersonalities[0];
+            
+            // Use "center" as the initial location to ensure agents spawn at our custom position
+            var agent = CreateNewAgent(name, personality, "center");
+            if (agent != null)
+            {
+                Debug.Log($"Created agent {name} at {agent.transform.position}");
+            }
+        }
     }
     
     public AgentController CreateNewAgent(string agentId, string personality, string initialLocation)
@@ -254,32 +284,55 @@ public class WorldManager : MonoBehaviour
         // Set initial position
         Vector3 targetPosition;
 
-        if (!string.IsNullOrEmpty(initialLocation) && locationPositions.TryGetValue(initialLocation.ToLower(), out Vector3 position))
+        if (initialLocation?.ToLower() == "center" || string.IsNullOrEmpty(initialLocation))
+        {
+            // Use the spawn center with a random offset in X and Z
+            float offsetX = UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset);
+            float offsetZ = UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset);
+            targetPosition = new Vector3(
+                spawnCenterPosition.x + offsetX,
+                spawnYPosition,
+                spawnCenterPosition.z + offsetZ
+            );
+        }
+        else if (locationPositions.TryGetValue(initialLocation.ToLower(), out Vector3 position))
         {
             targetPosition = position;
         }
         else
         {
             // Random position if location not found
-            targetPosition = agentsContainer.position + UnityEngine.Random.insideUnitSphere * 10f;
+            targetPosition = spawnCenterPosition + new Vector3(
+                UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset),
+                0,
+                UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset)
+            );
         }
         
-        // Ensure position is on NavMesh
+        // Force Y position to exact value while ensuring XZ is on NavMesh
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(targetPosition, out hit, 20f, NavMesh.AllAreas))
+        // First try the exact position with our fixed Y coordinate
+        Vector3 positionWithFixedY = new Vector3(targetPosition.x, spawnYPosition, targetPosition.z);
+        
+        if (NavMesh.SamplePosition(positionWithFixedY, out hit, 20f, NavMesh.AllAreas))
         {
-            agentObject.transform.position = hit.position;
+            // Use the hit position but override Y to our exact value
+            Vector3 finalPosition = hit.position;
+            finalPosition.y = spawnYPosition;
+            agentObject.transform.position = finalPosition;
         }
         else
         {
             // If can't find NavMesh nearby, try a fallback approach
-            Debug.LogWarning($"Failed to find NavMesh near {targetPosition}. Using fallback position.");
+            Debug.LogWarning($"Failed to find NavMesh near {positionWithFixedY}. Using fallback position.");
             
-            // Try to find any valid position on NavMesh
-            Vector3 fallbackOrigin = new Vector3(325f, 50f, 425f); // Center of the map or a known good position
+            // Try to find any valid position near the center with our fixed Y
+            Vector3 fallbackOrigin = new Vector3(spawnCenterPosition.x, spawnYPosition, spawnCenterPosition.z); // Center of the map
             if (NavMesh.SamplePosition(fallbackOrigin, out hit, 50f, NavMesh.AllAreas))
             {
-                agentObject.transform.position = hit.position;
+                Vector3 finalPosition = hit.position;
+                finalPosition.y = spawnYPosition; // Force exact Y coordinate
+                agentObject.transform.position = finalPosition;
             }
             else
             {
@@ -514,6 +567,87 @@ public class WorldManager : MonoBehaviour
     public AgentController GetAgentById(string agentId)
     {
         return activeAgents.FirstOrDefault(a => a.agentId == agentId);
+    }
+    
+    // Public methods for controlling agents
+    
+    /// <summary>
+    /// Add a specified number of new agents to the simulation
+    /// </summary>
+    public void AddAgents(int count)
+    {
+        // Don't exceed max agents
+        count = Mathf.Min(count, maxAgents - activeAgents.Count);
+        
+        if (count <= 0)
+        {
+            Debug.LogWarning($"Cannot add more agents: already at max capacity ({activeAgents.Count}/{maxAgents})");
+            return;
+        }
+        
+        for (int i = 0; i < count; i++)
+        {
+            // Generate a name that's not already in use
+            string name = $"Agent_{(char)('A' + UnityEngine.Random.Range(0, 26))}_{activeAgents.Count}";
+            
+            // Pick a random personality
+            string personality = agentPersonalities[UnityEngine.Random.Range(0, agentPersonalities.Length)];
+            
+            // Create the agent at the center spawn point
+            CreateNewAgent(name, personality, "center");
+        }
+        
+        Debug.Log($"Added {count} new agents. Total agents: {activeAgents.Count}");
+    }
+    
+    /// <summary>
+    /// Remove a specified number of agents from the simulation
+    /// </summary>
+    public void RemoveAgents(int count)
+    {
+        count = Mathf.Min(count, activeAgents.Count);
+        
+        for (int i = 0; i < count; i++)
+        {
+            if (activeAgents.Count > 0)
+            {
+                // Remove the last agent in the list
+                var agent = activeAgents[activeAgents.Count - 1];
+                RemoveAgent(agent.agentId);
+            }
+        }
+        
+        Debug.Log($"Removed {count} agents. Remaining agents: {activeAgents.Count}");
+    }
+    
+    /// <summary>
+    /// Set the exact number of agents in the simulation
+    /// </summary>
+    public void SetAgentCount(int targetCount)
+    {
+        targetCount = Mathf.Clamp(targetCount, 0, maxAgents);
+        int currentCount = activeAgents.Count;
+        
+        if (targetCount > currentCount)
+        {
+            AddAgents(targetCount - currentCount);
+        }
+        else if (targetCount < currentCount)
+        {
+            RemoveAgents(currentCount - targetCount);
+        }
+    }
+    
+    // Debug visualization
+    void OnDrawGizmos()
+    {
+        if (!showDebugInfo)
+            return;
+        
+        // Visualize spawn area
+        Gizmos.color = new Color(0, 1, 0, 0.2f); // Semi-transparent green
+        Gizmos.DrawSphere(spawnCenterPosition, 0.5f);
+        Gizmos.DrawWireSphere(spawnCenterPosition, spawnRandomOffset);
     }
 }
 

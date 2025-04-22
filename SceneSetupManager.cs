@@ -41,9 +41,13 @@ public class SceneSetupManager : MonoBehaviour
         WorldManager worldManager = FindObjectOfType<WorldManager>();
         if (worldManager != null)
         {
-            // Configure the WorldManager
-            worldManager.agentsContainer = agentsContainer;
-            Debug.Log("Configured existing WorldManager");
+            // Use reflection to set the agentsContainer if it's not already set
+            if (worldManager.agentsContainer == null && agentsContainer != null)
+            {
+                worldManager.agentsContainer = agentsContainer;
+                Debug.Log("Configured WorldManager agentsContainer");
+            }
+            Debug.Log("Found existing WorldManager");
         }
         else
         {

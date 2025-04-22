@@ -107,13 +107,22 @@ public class BackendCommunicator : MonoBehaviour
         Debug.Log($"Checking connection to backend at {backendUrl}/health");
         
         UnityWebRequest request = null;
+        
+        // Create the request outside the try block
+        request = UnityWebRequest.Get($"{backendUrl}/health");
+        request.timeout = 5; // Set timeout to 5 seconds
+        
+        // This operation can throw exceptions
+        var operation = request.SendWebRequest();
+        
+        // Wait for the operation to complete
+        while (!operation.isDone)
+        {
+            yield return null;
+        }
+        
         try
         {
-            request = UnityWebRequest.Get($"{backendUrl}/health");
-            request.timeout = 5; // Set timeout to 5 seconds
-            
-            yield return request.SendWebRequest();
-            
             if (request.result == UnityWebRequest.Result.Success)
             {
                 isConnected = true;
