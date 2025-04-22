@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEditor;
+using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -269,6 +271,7 @@ public class EnvironmentReporter : MonoBehaviour
         if (!showDebugVisualization || !Application.isPlaying)
             return;
         
+#if UNITY_EDITOR
         // Draw detection radius for currently selected agent
         AgentController selectedAgent = Selection.activeGameObject?.GetComponent<AgentController>();
         if (selectedAgent != null)
@@ -295,6 +298,7 @@ public class EnvironmentReporter : MonoBehaviour
                 Gizmos.DrawLine(selectedAgent.transform.position, leftDir);
             }
         }
+#endif
     }
 }
 

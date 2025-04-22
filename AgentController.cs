@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
+using TMPro;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AgentController : MonoBehaviour
