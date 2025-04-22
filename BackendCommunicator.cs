@@ -252,10 +252,23 @@ public class BackendCommunicator : MonoBehaviour
         // Notify the backend
         if (isConnected)
         {
+            // Get the agent's state
+            var agentState = agent.GetAgentState();
+            
+            // Extract the current location
+            string initialLocation = "home"; // Default to home if not set
+            if (agentState.ContainsKey("location") && agentState["location"] != null && !string.IsNullOrEmpty(agentState["location"].ToString()))
+            {
+                initialLocation = agentState["location"].ToString();
+            }
+            
+            // Log the location being sent
+            Debug.Log($"Registering agent {agent.agentId} with initial location: {initialLocation}");
+            
             var registerData = new Dictionary<string, object>
             {
-                { "agentId", agent.agentId },
-                { "initialLocation", agent.GetAgentState()["location"] }
+                { "agent_id", agent.agentId }, // Updated to match backend API
+                { "initial_location", initialLocation }
             };
             
             StartCoroutine(SendRequest(
@@ -601,8 +614,18 @@ public class BackendCommunicator : MonoBehaviour
         
         // Get agent state
         var agentState = agent.GetAgentState();
-        string location = agentState.ContainsKey("location") ? agentState["location"].ToString() : "unknown location";
+        
+        // Make sure location is present and valid
+        string location = "home"; // Default fallback
+        if (agentState.ContainsKey("location") && agentState["location"] != null && !string.IsNullOrEmpty(agentState["location"].ToString()))
+        {
+            location = agentState["location"].ToString();
+        }
+        
         string status = agentState.ContainsKey("status") ? agentState["status"].ToString() : "Idle";
+        
+        // Log the location for debugging
+        Debug.Log($"Backend GetAgentFeedback using location: {location} for agent {agentId}");
         
         // Get nearby entities if environment reporter is available
         string nearbyInfo = "";
@@ -617,6 +640,9 @@ public class BackendCommunicator : MonoBehaviour
                 foreach (var nearbyAgent in nearbyAgents)
                 {
                     if (nearbyAgent["id"].ToString() == agentId) continue; // Skip self
+                    
+                    // Skip Agent_Default entities
+                    if (nearbyAgent["id"].ToString().Contains("Default")) continue;
                     
                     nearbyInfo += $"{nearbyAgent["id"]} ({nearbyAgent["status"]}), ";
                 }

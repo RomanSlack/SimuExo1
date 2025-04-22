@@ -23,7 +23,7 @@ public class AgentController : MonoBehaviour
     [SerializeField] private float decelerationDistance = 1.5f;
     
     [Header("Status")]
-    [SerializeField] private string currentLocation = "center"; // Default starting location
+    [SerializeField] private string currentLocation = "home"; // Default starting location
     [SerializeField] private string desiredLocation = "";
     [SerializeField] private string currentStatus = "Idle";
     [SerializeField] private bool isMoving = false;
@@ -229,9 +229,11 @@ public class AgentController : MonoBehaviour
         // Update current location if we moved to a named location
         if (!string.IsNullOrEmpty(desiredLocation))
         {
-            currentLocation = desiredLocation;
+            // Use SetLocation to update properly and notify the backend
+            SetLocation(desiredLocation);
         }
         
+        // Update status
         currentStatus = $"At {currentLocation}";
         
         if (agentUI != null)
@@ -392,6 +394,7 @@ public class AgentController : MonoBehaviour
     private void InitializeKnownLocations()
     {
         // Initialize with the same locations from the reference implementation
+        knownLocations.Add("home", new Vector3(336.7f, 47.5f, 428.61f)); // Match the spawn center position
         knownLocations.Add("park", new Vector3(350.47f, 49.63f, 432.7607f));
         knownLocations.Add("library", new Vector3(325.03f, 50.29f, 407.87f));
         knownLocations.Add("cantina", new Vector3(324.3666f, 50.33723f, 463.2347f));
@@ -418,6 +421,38 @@ public class AgentController : MonoBehaviour
             {
                 Debug.Log($"[{agentId}] Updated known location: {name} to {position}");
             }
+        }
+    }
+    
+    public void SetLocation(string locationName)
+    {
+        if (string.IsNullOrEmpty(locationName))
+        {
+            return;
+        }
+        
+        currentLocation = locationName.ToLower();
+        
+        if (logStateChanges)
+        {
+            Debug.Log($"[{agentId}] Current location set to: {currentLocation}");
+        }
+        
+        // Update status text if needed
+        if (currentStatus == "Idle" || currentStatus == $"At {currentLocation}")
+        {
+            currentStatus = $"At {currentLocation}";
+            
+            if (agentUI != null)
+            {
+                agentUI.UpdateStatus(currentStatus);
+            }
+        }
+        
+        // Notify backend of state change
+        if (backendCommunicator != null)
+        {
+            backendCommunicator.NotifyAgentStateChange(this);
         }
     }
     

@@ -131,6 +131,9 @@ public class WorldManager : MonoBehaviour
         // Add standard locations from reference implementation if using predefined locations
         if (usePredefinedLocations)
         {
+            // Always add Home location - this is critical for agent initialization
+            AddLocationIfMissing("home", new Vector3(spawnCenterPosition.x, spawnYPosition, spawnCenterPosition.z));
+            
             // Based on logs, these positions have been verified to work with the NavMesh
             AddLocationIfMissing("park", new Vector3(350.47f, 49.63f, 432.7607f));
             AddLocationIfMissing("library", new Vector3(325.03f, 50.29f, 407.87f));
@@ -224,18 +227,39 @@ public class WorldManager : MonoBehaviour
     {
         // Cap initial count to available names and max agents
         int count = Mathf.Min(initialAgentCount, agentNames.Length, maxAgents);
-        Debug.Log($"Initializing {count} default agents around {spawnCenterPosition}");
+        Debug.Log($"Initializing {count} default agents");
         
         for (int i = 0; i < count; i++)
         {
             string name = agentNames[i];
             string personality = i < agentPersonalities.Length ? agentPersonalities[i] : agentPersonalities[0];
+            string initialLocation = "home"; // Default to home
             
-            // Use "center" as the initial location to ensure agents spawn at our custom position
-            var agent = CreateNewAgent(name, personality, "center");
+            // Try to get the default location from the backend if connected
+            // If not available, will use "home" as default
+            if (backendCommunicator != null)
+            {
+                Dictionary<string, string> profileLocations = new Dictionary<string, string>
+                {
+                    { "Agent_A", "park" },
+                    { "Agent_B", "cantina" },
+                    { "Agent_C", "library" },
+                    { "Agent_D", "o2_regulator_room" },
+                    { "Agent_E", "gym" }
+                };
+                
+                // Use known default locations from profiles if available
+                if (profileLocations.ContainsKey(name))
+                {
+                    initialLocation = profileLocations[name];
+                }
+            }
+            
+            // Create the agent at their default location or home if not specified
+            var agent = CreateNewAgent(name, personality, initialLocation);
             if (agent != null)
             {
-                Debug.Log($"Created agent {name} at {agent.transform.position}");
+                Debug.Log($"Created agent {name} at location: {initialLocation}");
             }
         }
     }
@@ -319,33 +343,51 @@ public class WorldManager : MonoBehaviour
         // Force UI position update immediately
         ui.SetUIHeight(10.0f); // Use a consistent height
         
-        // Set initial position
+        // Set initial position and agent's current location
         Vector3 targetPosition;
+        string actualLocation; // Track which location we actually use
 
-        if (initialLocation?.ToLower() == "center" || string.IsNullOrEmpty(initialLocation))
+        // Default to "home" if not specified or if "center" is specified
+        if (string.IsNullOrEmpty(initialLocation) || initialLocation?.ToLower() == "center")
         {
-            // Use the spawn center with a random offset in X and Z
-            float offsetX = UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset);
-            float offsetZ = UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset);
-            targetPosition = new Vector3(
-                spawnCenterPosition.x + offsetX,
-                spawnYPosition,
-                spawnCenterPosition.z + offsetZ
-            );
+            initialLocation = "home";
         }
-        else if (locationPositions.TryGetValue(initialLocation.ToLower(), out Vector3 position))
+        
+        // If initialLocation is "home" or another known location, use it
+        if (locationPositions.TryGetValue(initialLocation.ToLower(), out Vector3 position))
         {
             targetPosition = position;
+            actualLocation = initialLocation.ToLower();
         }
         else
         {
-            // Random position if location not found
-            targetPosition = spawnCenterPosition + new Vector3(
-                UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset),
-                0,
-                UnityEngine.Random.Range(-spawnRandomOffset, spawnRandomOffset)
-            );
+            // Use "home" as fallback if the specified location doesn't exist
+            Debug.LogWarning($"Location '{initialLocation}' not found for agent {agentId}, using 'home' instead");
+            
+            if (locationPositions.TryGetValue("home", out Vector3 homePosition))
+            {
+                targetPosition = homePosition;
+                actualLocation = "home";
+            }
+            else
+            {
+                // This shouldn't happen since we always add "home", but just in case
+                targetPosition = spawnCenterPosition;
+                actualLocation = "home";
+                
+                // Add home location if it's somehow missing
+                AddLocationIfMissing("home", spawnCenterPosition);
+            }
         }
+        
+        // Add small random offset to prevent agents from stacking exactly
+        float offsetX = UnityEngine.Random.Range(-spawnRandomOffset * 0.5f, spawnRandomOffset * 0.5f);
+        float offsetZ = UnityEngine.Random.Range(-spawnRandomOffset * 0.5f, spawnRandomOffset * 0.5f);
+        targetPosition = new Vector3(
+            targetPosition.x + offsetX,
+            spawnYPosition,
+            targetPosition.z + offsetZ
+        );
         
         // Force Y position to exact value while ensuring XZ is on NavMesh
         NavMeshHit hit;
@@ -381,6 +423,9 @@ public class WorldManager : MonoBehaviour
             }
         }
         
+        // Set the agent's current location in the controller
+        controller.SetLocation(actualLocation);
+        
         // Register with backend communicator
         if (backendCommunicator != null)
         {
@@ -390,7 +435,7 @@ public class WorldManager : MonoBehaviour
         // Add to active agents list
         activeAgents.Add(controller);
         
-        Debug.Log($"Created new agent: {agentId}");
+        Debug.Log($"Created new agent: {agentId} at location: {actualLocation}");
         return controller;
     }
     
@@ -562,7 +607,11 @@ public class WorldManager : MonoBehaviour
         {
             // Simple fallback feedback if no EnvironmentReporter is available
             var simpleAgentState = agent.GetAgentState();
-            return $"Agent {agent.agentId} is at {simpleAgentState["location"]} with status: {simpleAgentState["status"]}";
+            string simpleLoc = simpleAgentState.ContainsKey("location") ? 
+                              simpleAgentState["location"]?.ToString() ?? "home" : 
+                              "home";
+                              
+            return $"Agent {agent.agentId} is at {simpleLoc} with status: {simpleAgentState["status"]}";
         }
         
         // Get detailed environment state from the EnvironmentReporter
@@ -611,7 +660,16 @@ public class WorldManager : MonoBehaviour
         
         // Construct the feedback
         var currentAgentState = agent.GetAgentState();
-        return $"Agent {agent.agentId} is at {currentAgentState["location"]} with status: {currentAgentState["status"]}.\n{nearbyAgents}\n{nearbyObjects}";
+        
+        // Make sure the location is properly extracted
+        string agentLocation = currentAgentState.ContainsKey("location") ? 
+                              currentAgentState["location"]?.ToString() ?? "home" : 
+                              "home";
+        
+        // Log the location for debugging
+        Debug.Log($"Agent feedback using location: {agentLocation} for agent {agent.agentId}");
+                          
+        return $"Agent {agent.agentId} is at {agentLocation} with status: {currentAgentState["status"]}.\n{nearbyAgents}\n{nearbyObjects}";
     }
     
     private IEnumerator RequestAgentDecisionAsync(AgentController agent, string environmentContext)
