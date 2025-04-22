@@ -575,10 +575,12 @@ public class WorldManager : MonoBehaviour
             List<string> agentDescriptions = new List<string>();
             foreach (var otherAgent in agents)
             {
-                if (otherAgent["id"].ToString() != agent.agentId) // Skip the current agent
+                string otherAgentId = otherAgent["id"].ToString();
+                // Skip the current agent and any Agent_Default entities
+                if (otherAgentId != agent.agentId && !otherAgentId.Contains("Default")) 
                 {
                     string status = otherAgent.ContainsKey("status") ? otherAgent["status"].ToString() : "Unknown";
-                    agentDescriptions.Add($"{otherAgent["id"]} ({status})");
+                    agentDescriptions.Add($"{otherAgentId} ({status})");
                 }
             }
             
@@ -782,11 +784,51 @@ public class WorldManager : MonoBehaviour
         // Allow some time for everything to initialize
         yield return new WaitForSeconds(2.0f);
         
-        Debug.Log("Priming agents with initial context...");
+        Debug.Log("Priming active agents with initial context...");
         
-        // Create the request for priming all agents
-        Dictionary<string, object> requestData = new Dictionary<string, object>
+        // Get the IDs of active agents only
+        List<string> activeAgentIds = activeAgents.Select(a => a.agentId).ToList();
+        
+        if (activeAgentIds.Count == 0) {
+            Debug.LogWarning("No active agents to prime");
+            yield break;
+        }
+        
+        Debug.Log($"Active agents to prime: {string.Join(", ", activeAgentIds)}");
+        
+        // Prime each active agent individually instead of all profiles
+        foreach (string agentId in activeAgentIds)
         {
+            Dictionary<string, object> requestData = new Dictionary<string, object>
+            {
+                { "agent_id", agentId },
+                { "force", false } // Don't force re-priming of already primed agents
+            };
+            
+            yield return backendCommunicator.SendRequest(
+                "POST", 
+                $"/profiles/{agentId}", 
+                requestData,
+                (success, response) => {
+                    if (success)
+                    {
+                        Debug.Log($"Updated profile for agent {agentId}");
+                    }
+                }
+            );
+            
+            yield return new WaitForSeconds(0.5f);
+        }
+        
+        // Now prime just those active agents - need to wrap in an object for JSON
+        var agentIdsList = new List<object>();
+        foreach (var id in activeAgentIds) {
+            agentIdsList.Add(id);
+        }
+        
+        Dictionary<string, object> agentsToProcess = new Dictionary<string, object>
+        {
+            { "agent_ids", agentIdsList },
             { "force", false } // Don't force re-priming of already primed agents
         };
         
@@ -794,11 +836,11 @@ public class WorldManager : MonoBehaviour
         yield return backendCommunicator.SendRequest(
             "POST", 
             "/agents/prime", 
-            requestData,
+            agentsToProcess,
             (success, response) => {
                 if (success)
                 {
-                    Debug.Log("Successfully primed agents for simulation");
+                    Debug.Log($"Successfully primed {activeAgentIds.Count} active agents for simulation");
                 }
                 else
                 {
