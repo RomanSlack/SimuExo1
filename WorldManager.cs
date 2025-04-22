@@ -169,8 +169,8 @@ public class WorldManager : MonoBehaviour
                 { "library", libraryPosition },
                 { "cantina", cantinaPosition },
                 { "gym", gymPosition },
-                { "o2_regulator_room", o2RegulatorPosition },
-                { "center", spawnCenterPosition }
+                { "o2_regulator_room", o2RegulatorPosition }
+                // Removed "center" as it's redundant with "home"
             };
             
             // Add each default location if not already in predefinedLocations
@@ -937,8 +937,8 @@ public class WorldManager : MonoBehaviour
             // Pick a random personality
             string personality = agentPersonalities[UnityEngine.Random.Range(0, agentPersonalities.Length)];
             
-            // Create the agent at the center spawn point
-            CreateNewAgent(name, personality, "center");
+            // Create the agent at the home location
+            CreateNewAgent(name, personality, "home");
         }
         
         Debug.Log($"Added {count} new agents. Total agents: {activeAgents.Count}");
