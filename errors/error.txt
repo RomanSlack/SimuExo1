@@ -1,4 +1,7 @@
-The referenced script (Unknown) on this Behaviour is missing!
+Initialized 6 locations
+UnityEngine.Debug:Log (object)
+WorldManager:InitializeLocations () (at Assets/Scripts/WorldManager.cs:130)
+WorldManager:Awake () (at Assets/Scripts/WorldManager.cs:61)
 
 Registered endpoint GET /health
 UnityEngine.Debug:Log (object)
@@ -54,72 +57,148 @@ UnityEngine.Debug:Log (object)
 HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:85)
 HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
 
-[Agent_Default] Initialized at position (335.47, 47.50, 424.62)
+Initializing scene setup...
 UnityEngine.Debug:Log (object)
-AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:31)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
 
-[Agent_Default] Initialized at position (335.98, 49.39, 424.64)
+Found existing WorldManager
 UnityEngine.Debug:Log (object)
-AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:50)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+NavMesh detected and is valid
+UnityEngine.Debug:Log (object)
+SceneSetupManager:CheckNavMesh () (at Assets/Scripts/SceneSetupManager.cs:117)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:58)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+Scene setup complete
+UnityEngine.Debug:Log (object)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:61)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+Checking connection to backend at http://localhost:3000/health
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<CheckConnection>d__22:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:107)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+BackendCommunicator:Start () (at Assets/Scripts/BackendCommunicator.cs:59)
+
+Initializing 2 default agents around (336.70, 47.50, 428.61)
+UnityEngine.Debug:Log (object)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:212)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Failed to create agent because it is not close enough to the NavMesh
 UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:246)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Failed to create agent because it is not close enough to the NavMesh
 UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:246)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Created new agent: Agent_A
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:258)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:355)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
+
+Created agent Agent_A at (334.51, 47.50, 424.18)
+UnityEngine.Debug:Log (object)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:223)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Failed to create agent because it is not close enough to the NavMesh
 UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:246)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Failed to create agent because it is not close enough to the NavMesh
 UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:246)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
 Created new agent: Agent_B
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:258)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:355)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:220)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
-Step offset can't be greater than the height of the character controller
-UnityEngine.CharacterController:set_stepOffset (single)
-GodModeFlyCamera:Initialize () (at Assets/Scripts/FirstpersonController.cs:145)
-GodModeFlyCamera:Start () (at Assets/Scripts/FirstpersonController.cs:123)
+Created agent Agent_B at (332.38, 47.50, 433.09)
+UnityEngine.Debug:Log (object)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:223)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:75)
 
-[Agent_A] Initialized at position (325.03, 50.29, 407.87)
+[Agent_A] Initialized at position (334.51, 47.50, 424.18)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
 
-[Agent_Default] Initialized at position (325.54, 52.18, 407.89)
+[Agent_Default] Initialized at position (335.02, 49.39, 424.20)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
 
-[Agent_B] Initialized at position (324.37, 50.34, 463.23)
+[Agent_B] Initialized at position (332.38, 47.50, 433.09)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
 
-[Agent_Default] Initialized at position (324.88, 52.23, 463.26)
+[Agent_Default] Initialized at position (332.90, 49.39, 433.11)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
 
-Parameter 'IsMoving' does not exist.
-UnityEngine.Animator:SetBool (string,bool)
-AgentController:Update () (at Assets/Scripts/AgentController.cs:95)
+Successfully connected to backend
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<CheckConnection>d__22:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:130)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Backend health response: {"status":"healthy","unity_connected":false,"components":{"session_manager":"healthy","action_dispatcher":"healthy","environment_state":"initializing"}}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<CheckConnection>d__22:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:136)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+Environment state updated successfully
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c:<SendEnvironmentUpdates>b__24_0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:211)
+BackendCommunicator/<SendRequest>d__30:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:410)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
+
+UnityException: Tag: Interactable is not defined.
+UnityEngine.GameObject.FindGameObjectsWithTag (System.String tag) (at <f7e626a740304dbfa3246e202624d59e>:0)
+EnvironmentReporter.RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:73)
+EnvironmentReporter.Update () (at Assets/Scripts/EnvironmentReporter.cs:52)
 

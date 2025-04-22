@@ -67,8 +67,19 @@ public class SceneSetupManager : MonoBehaviour
         GameObject simulationManager = GameObject.Find("SimulationManager");
         if (simulationManager == null)
         {
-            simulationManager = new GameObject("SimulationManager");
-            Debug.Log("Created SimulationManager GameObject");
+            // Check for WorldManager object with missing script
+            GameObject worldManager = GameObject.Find("WorldManager");
+            if (worldManager != null && !worldManager.GetComponent<WorldManager>())
+            {
+                Debug.LogWarning("Found WorldManager object with missing script. Replacing with SimulationManager.");
+                simulationManager = worldManager;
+                simulationManager.name = "SimulationManager"; // Rename it
+            }
+            else
+            {
+                simulationManager = new GameObject("SimulationManager");
+                Debug.Log("Created SimulationManager GameObject");
+            }
         }
         
         // Ensure it has all required components

@@ -18,8 +18,8 @@ public class EnvironmentReporter : MonoBehaviour
     
     [Header("Object Tags")]
     [SerializeField] private List<string> interactableObjectTags = new List<string> { 
-        "Interactable", "Item", "Door", "Container", "Terminal"
-    };
+        "Untagged", "Respawn", "Finish", "EditorOnly", "Player"
+    }; // Using standard Unity tags as defaults
     
     [Header("Debug")]
     [SerializeField] private bool showDebugVisualization = true;
@@ -68,15 +68,39 @@ public class EnvironmentReporter : MonoBehaviour
         
         // Cache interactable objects
         cachedObjects.Clear();
-        foreach (var tag in interactableObjectTags)
-        {
-            foreach (var obj in GameObject.FindGameObjectsWithTag(tag))
+        
+        try {
+            // Only search for tags that actually exist in the project
+            foreach (var tag in interactableObjectTags)
             {
-                if (!cachedObjects.ContainsKey(obj.name))
-                {
-                    cachedObjects.Add(obj.name, obj.transform);
+                try {
+                    // Skip empty or null tags
+                    if (string.IsNullOrEmpty(tag))
+                        continue;
+                        
+                    var objects = GameObject.FindGameObjectsWithTag(tag);
+                    foreach (var obj in objects)
+                    {
+                        if (!cachedObjects.ContainsKey(obj.name))
+                        {
+                            cachedObjects.Add(obj.name, obj.transform);
+                        }
+                    }
+                }
+                catch (UnityException) {
+                    // Tag doesn't exist - just skip it
+                    Debug.LogWarning($"Tag '{tag}' is not defined in project settings. Skipping.");
+                    
+                    // Remove this tag from the list to prevent future errors
+                    if (Application.isPlaying)
+                    {
+                        interactableObjectTags.Remove(tag);
+                    }
                 }
             }
+        }
+        catch (System.Exception e) {
+            Debug.LogError($"Error refreshing environment cache: {e.Message}");
         }
     }
     
