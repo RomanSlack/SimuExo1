@@ -92,15 +92,22 @@ public class AgentController : MonoBehaviour
         // Update animation parameters if animator exists
         if (animator != null)
         {
-            animator.SetBool("IsMoving", isMoving);
-            
-            if (isMoving && navMeshAgent.velocity.magnitude > 0.1f)
+            // Check if the animator has the required parameters before setting them
+            if (HasAnimatorParameter("IsMoving", AnimatorControllerParameterType.Bool))
             {
-                animator.SetFloat("MoveSpeed", navMeshAgent.velocity.magnitude / movementSpeed);
+                animator.SetBool("IsMoving", isMoving);
             }
-            else
+            
+            if (HasAnimatorParameter("MoveSpeed", AnimatorControllerParameterType.Float))
             {
-                animator.SetFloat("MoveSpeed", 0f);
+                if (isMoving && navMeshAgent.velocity.magnitude > 0.1f)
+                {
+                    animator.SetFloat("MoveSpeed", navMeshAgent.velocity.magnitude / movementSpeed);
+                }
+                else
+                {
+                    animator.SetFloat("MoveSpeed", 0f);
+                }
             }
         }
         
@@ -439,6 +446,20 @@ public class AgentController : MonoBehaviour
             { "conversation_partner", conversationPartner?.agentId },
             { "desired_location", desiredLocation }
         };
+    }
+    
+    private bool HasAnimatorParameter(string paramName, AnimatorControllerParameterType paramType)
+    {
+        if (animator == null)
+            return false;
+            
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.name == paramName && param.type == paramType)
+                return true;
+        }
+        
+        return false;
     }
     
     void OnDrawGizmos()

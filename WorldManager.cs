@@ -89,7 +89,10 @@ public class WorldManager : MonoBehaviour
     
     private void InitializeLocations()
     {
-        // Add predefined locations to the dictionary
+        // Clear existing locations to avoid duplicates
+        locationPositions.Clear();
+        
+        // Add predefined locations from the Inspector
         foreach (var location in predefinedLocations)
         {
             if (!string.IsNullOrEmpty(location.name) && !locationPositions.ContainsKey(location.name.ToLower()))
@@ -107,20 +110,44 @@ public class WorldManager : MonoBehaviour
         // Add standard locations from reference implementation if using predefined locations
         if (usePredefinedLocations)
         {
-            if (!locationPositions.ContainsKey("park"))
-                locationPositions.Add("park", new Vector3(350.47f, 49.63f, 432.7607f));
+            // Based on logs, these positions have been verified to work with the NavMesh
+            AddLocationIfMissing("park", new Vector3(350.47f, 49.63f, 432.7607f));
+            AddLocationIfMissing("library", new Vector3(325.03f, 50.29f, 407.87f));
+            AddLocationIfMissing("cantina", new Vector3(324.3666f, 50.33723f, 463.2347f));
+            AddLocationIfMissing("gym", new Vector3(300.5f, 50.23723f, 420.8247f));
+            AddLocationIfMissing("o2_regulator_room", new Vector3(324.3666f, 50.33723f, 463.2347f));
             
-            if (!locationPositions.ContainsKey("library"))
-                locationPositions.Add("library", new Vector3(325.03f, 50.29f, 407.87f));
+            // Add a central fallback position known to be on the NavMesh
+            AddLocationIfMissing("center", new Vector3(325.0f, 50.0f, 425.0f));
+        }
+        
+        Debug.Log($"Initialized {locationPositions.Count} locations");
+    }
+    
+    private void AddLocationIfMissing(string name, Vector3 position)
+    {
+        if (!locationPositions.ContainsKey(name.ToLower()))
+        {
+            // Verify the position is on the NavMesh
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(position, out hit, 5f, NavMesh.AllAreas))
+            {
+                locationPositions.Add(name.ToLower(), hit.position);
+            }
+            else
+            {
+                Debug.LogWarning($"Location {name} at {position} is not on NavMesh. Using fallback.");
                 
-            if (!locationPositions.ContainsKey("cantina"))
-                locationPositions.Add("cantina", new Vector3(324.3666f, 50.33723f, 463.2347f));
-                
-            if (!locationPositions.ContainsKey("gym"))
-                locationPositions.Add("gym", new Vector3(300.5f, 50.23723f, 420.8247f));
-                
-            if (!locationPositions.ContainsKey("o2_regulator_room"))
-                locationPositions.Add("o2_regulator_room", new Vector3(324.3666f, 50.33723f, 463.2347f));
+                // Try a wider search
+                if (NavMesh.SamplePosition(position, out hit, 20f, NavMesh.AllAreas))
+                {
+                    locationPositions.Add(name.ToLower(), hit.position);
+                }
+                else
+                {
+                    Debug.LogError($"Could not find NavMesh position for location {name}");
+                }
+            }
         }
     }
     
@@ -225,24 +252,41 @@ public class WorldManager : MonoBehaviour
         ui.SetNameText(agentId);
         
         // Set initial position
+        Vector3 targetPosition;
+
         if (!string.IsNullOrEmpty(initialLocation) && locationPositions.TryGetValue(initialLocation.ToLower(), out Vector3 position))
         {
-            agentObject.transform.position = position;
+            targetPosition = position;
         }
         else
         {
-            // Random position on NavMesh if location not found
-            NavMeshHit hit;
-            Vector3 randomPoint = UnityEngine.Random.insideUnitSphere * 10f;
-            randomPoint += agentsContainer.position;
+            // Random position if location not found
+            targetPosition = agentsContainer.position + UnityEngine.Random.insideUnitSphere * 10f;
+        }
+        
+        // Ensure position is on NavMesh
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(targetPosition, out hit, 20f, NavMesh.AllAreas))
+        {
+            agentObject.transform.position = hit.position;
+        }
+        else
+        {
+            // If can't find NavMesh nearby, try a fallback approach
+            Debug.LogWarning($"Failed to find NavMesh near {targetPosition}. Using fallback position.");
             
-            if (NavMesh.SamplePosition(randomPoint, out hit, 20f, NavMesh.AllAreas))
+            // Try to find any valid position on NavMesh
+            Vector3 fallbackOrigin = new Vector3(325f, 50f, 425f); // Center of the map or a known good position
+            if (NavMesh.SamplePosition(fallbackOrigin, out hit, 50f, NavMesh.AllAreas))
             {
                 agentObject.transform.position = hit.position;
             }
             else
             {
-                agentObject.transform.position = agentsContainer.position;
+                // If still failed, destroy the agent and return null
+                Debug.LogError("Failed to create agent because it is not close enough to the NavMesh");
+                Destroy(agentObject);
+                return null;
             }
         }
         

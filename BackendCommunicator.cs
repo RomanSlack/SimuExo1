@@ -104,8 +104,14 @@ public class BackendCommunicator : MonoBehaviour
     
     private IEnumerator CheckConnection()
     {
-        using (UnityWebRequest request = UnityWebRequest.Get($"{backendUrl}/health"))
+        Debug.Log($"Checking connection to backend at {backendUrl}/health");
+        
+        UnityWebRequest request = null;
+        try
         {
+            request = UnityWebRequest.Get($"{backendUrl}/health");
+            request.timeout = 5; // Set timeout to 5 seconds
+            
             yield return request.SendWebRequest();
             
             if (request.result == UnityWebRequest.Result.Success)
@@ -113,12 +119,36 @@ public class BackendCommunicator : MonoBehaviour
                 isConnected = true;
                 lastConnectionError = "";
                 Debug.Log("Successfully connected to backend");
+                
+                // Parse the response to get more information
+                try 
+                {
+                    string responseText = request.downloadHandler.text;
+                    Debug.Log($"Backend health response: {responseText}");
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"Error parsing health response: {e.Message}");
+                }
             }
             else
             {
                 isConnected = false;
                 lastConnectionError = request.error;
                 Debug.LogWarning($"Failed to connect to backend: {request.error}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            isConnected = false;
+            lastConnectionError = e.Message;
+            Debug.LogError($"Exception checking connection: {e.Message}");
+        }
+        finally
+        {
+            if (request != null)
+            {
+                request.Dispose();
             }
         }
     }

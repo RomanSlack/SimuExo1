@@ -1,0 +1,125 @@
+The referenced script (Unknown) on this Behaviour is missing!
+
+Registered endpoint GET /health
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:129)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint POST /agent/{id}/move
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:135)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint POST /agent/{id}/speak
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:138)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint POST /agent/{id}/converse
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:141)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint POST /agent/register
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:144)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint POST /agent/{id}/deregister
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:147)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+Registered endpoint GET /env/{agent_id}
+UnityEngine.Debug:Log (object)
+HttpServer:RegisterEndpoint (string,string,System.Func`2<System.Net.HttpListenerRequest, System.Threading.Tasks.Task`1<ApiResponse>>) (at Assets/Scripts/HttpServer.cs:157)
+HttpServer:RegisterEndpoints () (at Assets/Scripts/HttpServer.cs:150)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:73)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+HTTP server started on http://127.0.0.1:8080/
+UnityEngine.Debug:Log (object)
+HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:85)
+HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
+
+[Agent_Default] Initialized at position (335.47, 47.50, 424.62)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+[Agent_Default] Initialized at position (335.98, 49.39, 424.64)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+Failed to create agent because it is not close enough to the NavMesh
+UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Failed to create agent because it is not close enough to the NavMesh
+UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Created new agent: Agent_A
+UnityEngine.Debug:Log (object)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:258)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:167)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Failed to create agent because it is not close enough to the NavMesh
+UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Failed to create agent because it is not close enough to the NavMesh
+UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:189)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Created new agent: Agent_B
+UnityEngine.Debug:Log (object)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:258)
+WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:168)
+WorldManager:Start () (at Assets/Scripts/WorldManager.cs:69)
+
+Step offset can't be greater than the height of the character controller
+UnityEngine.CharacterController:set_stepOffset (single)
+GodModeFlyCamera:Initialize () (at Assets/Scripts/FirstpersonController.cs:145)
+GodModeFlyCamera:Start () (at Assets/Scripts/FirstpersonController.cs:123)
+
+[Agent_A] Initialized at position (325.03, 50.29, 407.87)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+[Agent_Default] Initialized at position (325.54, 52.18, 407.89)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+[Agent_B] Initialized at position (324.37, 50.34, 463.23)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+[Agent_Default] Initialized at position (324.88, 52.23, 463.26)
+UnityEngine.Debug:Log (object)
+AgentController:Start () (at Assets/Scripts/AgentController.cs:86)
+
+Parameter 'IsMoving' does not exist.
+UnityEngine.Animator:SetBool (string,bool)
+AgentController:Update () (at Assets/Scripts/AgentController.cs:95)
+

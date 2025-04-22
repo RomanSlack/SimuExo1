@@ -141,8 +141,8 @@ public class GodModeFlyCamera : MonoBehaviour
         lastPos = playerTx.position;
         cameraStartY = cameraTx.localPosition.y;
         
-        // Disable gravity by setting stepOffset to a high value
-        controller.stepOffset = 999f;
+        // Set a reasonable step offset (no more than the height of the character controller)
+        controller.stepOffset = Mathf.Min(controller.height * 0.5f, 0.5f);
         
         // Make the collision detection minimal 
         controller.skinWidth = 0.01f;
