@@ -54,6 +54,14 @@ public class SceneSetupManager : MonoBehaviour
             Debug.LogError("WorldManager component not found. Please add it to the SimulationManager GameObject.");
         }
         
+        // Add UIFixer to make sure agent UIs are positioned correctly
+        if (GetComponent<UIFixer>() == null)
+        {
+            var fixer = gameObject.AddComponent<UIFixer>();
+            fixer.fixOnStart = true;
+            Debug.Log("Added UIFixer component to ensure agent UI positions are correct");
+        }
+        
         // Ensure NavMesh exists
         CheckNavMesh();
         

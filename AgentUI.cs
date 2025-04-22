@@ -22,7 +22,7 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private float maxSpeechLength = 100;
     
     [Header("UI Positioning")]
-    [SerializeField] private Vector3 uiOffset = new Vector3(0, 2.5f, 0);
+    [SerializeField] public Vector3 uiOffset = new Vector3(0, 10.0f, 0); // Increased Y height to position name above the model
     [SerializeField] private bool faceCamera = true;
     [SerializeField] private bool fadeWithDistance = true;
     [SerializeField] private float maxVisibleDistance = 50f;
@@ -50,6 +50,11 @@ public class AgentUI : MonoBehaviour
         {
             uiContainer = new GameObject("UI_Container");
             uiContainer.transform.SetParent(transform);
+            uiContainer.transform.localPosition = uiOffset;
+        }
+        else
+        {
+            // Force update position for existing containers (prefab instances)
             uiContainer.transform.localPosition = uiOffset;
         }
         
@@ -125,6 +130,29 @@ public class AgentUI : MonoBehaviour
         // Set initial texts
         SetNameText(agentId);
         UpdateStatus("Idle");
+        
+        // Apply UI offset (for both new and existing agents)
+        UpdateUIPosition();
+    }
+    
+    /// <summary>
+    /// Updates the UI container position based on the configured offset
+    /// </summary>
+    public void UpdateUIPosition()
+    {
+        if (uiContainer != null)
+        {
+            uiContainer.transform.localPosition = uiOffset;
+            originalUIPosition = uiContainer.transform.localPosition;
+            Debug.Log($"Updated UI position for {agentId} to {uiOffset}");
+        }
+    }
+    
+    // Allow changing the UI height at runtime
+    public void SetUIHeight(float height)
+    {
+        uiOffset = new Vector3(uiOffset.x, height, uiOffset.z);
+        UpdateUIPosition();
     }
     
     void Update()

@@ -281,6 +281,9 @@ public class WorldManager : MonoBehaviour
         ui.agentId = agentId;
         ui.SetNameText(agentId);
         
+        // Force UI position update immediately
+        ui.SetUIHeight(10.0f); // Use a consistent height
+        
         // Set initial position
         Vector3 targetPosition;
 
