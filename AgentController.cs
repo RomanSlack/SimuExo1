@@ -56,10 +56,32 @@ public class AgentController : MonoBehaviour
         backendCommunicator = FindObjectOfType<BackendCommunicator>();
         
         // Configure NavMeshAgent
-        navMeshAgent.speed = movementSpeed;
-        navMeshAgent.angularSpeed = turnSpeed;
-        navMeshAgent.stoppingDistance = stoppingDistance;
-        navMeshAgent.acceleration = movementSpeed * 2;
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.speed = movementSpeed;
+            navMeshAgent.angularSpeed = turnSpeed;
+            navMeshAgent.stoppingDistance = stoppingDistance;
+            navMeshAgent.acceleration = movementSpeed * 2;
+            
+            // Ensure agent is on NavMesh
+            if (!navMeshAgent.isOnNavMesh)
+            {
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(transform.position, out hit, 20f, NavMesh.AllAreas))
+                {
+                    transform.position = hit.position;
+                    Debug.Log($"[{agentId}] Agent placed on NavMesh during initialization");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{agentId}] Failed to place agent on NavMesh during initialization");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError($"[{agentId}] NavMeshAgent component missing!");
+        }
         
         // Add standard locations
         InitializeKnownLocations();
@@ -133,11 +155,32 @@ public class AgentController : MonoBehaviour
             return false;
         }
         
+        Debug.Log($"[{agentId}] Requesting move to {locationName}");
+        
+        // Normalize the location name
+        string normalizedName = locationName.Trim().ToLower();
+        
         // Check if it's a known location
-        if (knownLocations.TryGetValue(locationName.ToLower(), out Vector3 position))
+        if (knownLocations.TryGetValue(normalizedName, out Vector3 position))
         {
-            desiredLocation = locationName;
+            Debug.Log($"[{agentId}] Found known location {normalizedName} at {position}");
+            desiredLocation = normalizedName;
             return MoveTo(position);
+        }
+        
+        // Try to find the location by asking the WorldManager
+        WorldManager worldManager = GameObject.FindObjectOfType<WorldManager>();
+        if (worldManager != null)
+        {
+            Dictionary<string, Vector3> globalLocations = worldManager.GetLocationPositions();
+            if (globalLocations.TryGetValue(normalizedName, out Vector3 globalPosition))
+            {
+                Debug.Log($"[{agentId}] Found global location {normalizedName} at {globalPosition}");
+                // Add this to the agent's known locations for future reference
+                AddKnownLocation(normalizedName, globalPosition);
+                desiredLocation = normalizedName;
+                return MoveTo(globalPosition);
+            }
         }
         
         // Check if it's another agent
@@ -146,7 +189,8 @@ public class AgentController : MonoBehaviour
             
         if (targetAgent != null)
         {
-            desiredLocation = locationName;
+            Debug.Log($"[{agentId}] Found target agent {targetAgent.agentId} at {targetAgent.transform.position}");
+            desiredLocation = targetAgent.agentId;
             return MoveTo(targetAgent.transform.position);
         }
         
@@ -156,10 +200,35 @@ public class AgentController : MonoBehaviour
     
     public bool MoveTo(Vector3 position)
     {
-        if (!initialized || !navMeshAgent.isOnNavMesh)
+        if (!initialized)
         {
-            Debug.LogError($"[{agentId}] Cannot move: agent not initialized or not on NavMesh");
+            Debug.LogError($"[{agentId}] Cannot move: agent not initialized");
             return false;
+        }
+        
+        // Check if the agent has a valid NavMeshAgent and is on a NavMesh
+        if (navMeshAgent == null)
+        {
+            Debug.LogError($"[{agentId}] Cannot move: NavMeshAgent is missing");
+            return false;
+        }
+        
+        if (!navMeshAgent.isOnNavMesh)
+        {
+            Debug.LogWarning($"[{agentId}] Not on NavMesh, attempting to place on NavMesh...");
+            
+            // Try to place the agent on the NavMesh
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit, 20f, NavMesh.AllAreas))
+            {
+                transform.position = hit.position;
+                Debug.Log($"[{agentId}] Successfully placed on NavMesh at {hit.position}");
+            }
+            else
+            {
+                Debug.LogError($"[{agentId}] Failed to place on NavMesh");
+                return false;
+            }
         }
         
         if (moveRoutine != null)
@@ -169,6 +238,20 @@ public class AgentController : MonoBehaviour
         
         // Set target position
         targetPosition = position;
+        
+        // Make sure the target position is on the NavMesh
+        NavMeshHit hitTarget;
+        if (!NavMesh.SamplePosition(targetPosition, out hitTarget, 10f, NavMesh.AllAreas))
+        {
+            Debug.LogWarning($"[{agentId}] Target position is not on NavMesh, finding nearest point");
+            if (!NavMesh.SamplePosition(targetPosition, out hitTarget, 30f, NavMesh.AllAreas))
+            {
+                Debug.LogError($"[{agentId}] Could not find NavMesh near target position");
+                return false;
+            }
+        }
+        
+        Vector3 validTargetPosition = hitTarget.position;
         
         // Update status
         isMoving = true;
@@ -180,20 +263,28 @@ public class AgentController : MonoBehaviour
         }
         
         // Start movement
-        navMeshAgent.SetDestination(targetPosition);
-        
-        if (logStateChanges)
+        try 
         {
-            Debug.Log($"[{agentId}] Moving to {desiredLocation} at {targetPosition}");
+            navMeshAgent.SetDestination(validTargetPosition);
+            
+            if (logStateChanges)
+            {
+                Debug.Log($"[{agentId}] Moving to {desiredLocation} at {validTargetPosition}");
+            }
+            
+            // Notify backend of state change
+            if (backendCommunicator != null)
+            {
+                backendCommunicator.NotifyAgentStateChange(this);
+            }
+            
+            return true;
         }
-        
-        // Notify backend of state change
-        if (backendCommunicator != null)
+        catch (Exception e)
         {
-            backendCommunicator.NotifyAgentStateChange(this);
+            Debug.LogError($"[{agentId}] Error setting destination: {e.Message}");
+            return false;
         }
-        
-        return true;
     }
     
     public void StopMovement()

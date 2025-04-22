@@ -331,10 +331,38 @@ public class BackendCommunicator : MonoBehaviour
         if (!trackedAgents.ContainsKey(agent.agentId))
         {
             RegisterAgent(agent);
+            return; // RegisterAgent will handle the state notification
         }
         
-        // In a real implementation, we might queue these updates or send them immediately
-        // For now, we're just updating the tracked agent state
+        // Get the current state of the agent
+        var agentState = agent.GetAgentState();
+        
+        // Log agent state changes
+        Debug.Log($"Agent {agent.agentId} state changed: location={agentState["location"]}, status={agentState["status"]}");
+        
+        // In a real implementation, we would send the state update to the backend
+        // For testing, just update the tracked agent
+        trackedAgents[agent.agentId] = agent;
+        
+        // If we're connected to the backend, send the environment update
+        if (isConnected && environmentReporter != null)
+        {
+            // Get the environment state
+            var envState = environmentReporter.GetEnvironmentState();
+            
+            // Send the update in the background to avoid blocking
+            StartCoroutine(SendRequest(
+                "POST", 
+                "/env/update", 
+                envState,
+                (success, response) => {
+                    if (success)
+                    {
+                        Debug.Log($"Environment state updated with agent {agent.agentId} changes");
+                    }
+                }
+            ));
+        }
     }
     
     public async Task<string> RequestAgentDecision(string agentId, string systemPrompt = null, string task = null)

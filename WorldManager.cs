@@ -21,6 +21,15 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private bool usePredefinedLocations = true;
     [SerializeField] private List<LocationDefinition> predefinedLocations = new List<LocationDefinition>();
     
+    // Default locations with their coordinates
+    [Header("Default Locations")]
+    [SerializeField] private Vector3 homePosition = new Vector3(336.7f, 47.5f, 428.61f);
+    [SerializeField] private Vector3 parkPosition = new Vector3(350.47f, 49.63f, 432.7607f);
+    [SerializeField] private Vector3 libraryPosition = new Vector3(325.03f, 50.29f, 407.87f);
+    [SerializeField] private Vector3 cantinaPosition = new Vector3(324.3666f, 50.33723f, 463.2347f);
+    [SerializeField] private Vector3 gymPosition = new Vector3(300.5f, 50.23723f, 420.8247f);
+    [SerializeField] private Vector3 o2RegulatorPosition = new Vector3(324.3666f, 50.33723f, 443.2347f); // Moved to not overlap with Cantina
+    
     [Header("Simulation Control")]
     [SerializeField] private bool runAutomatically = false;
     [SerializeField] private float simulationStepInterval = 5.0f;
@@ -131,18 +140,62 @@ public class WorldManager : MonoBehaviour
         // Add standard locations from reference implementation if using predefined locations
         if (usePredefinedLocations)
         {
-            // Always add Home location - this is critical for agent initialization
-            AddLocationIfMissing("home", new Vector3(spawnCenterPosition.x, spawnYPosition, spawnCenterPosition.z));
+            // First, add any predefined locations from inspector if they don't exist already
+            // This creates marker prefabs for all default locations
+            if (!locationPositions.ContainsKey("home"))
+            {
+                LocationDefinition homeLocation = new LocationDefinition
+                {
+                    name = "home",
+                    position = homePosition,
+                    description = "The home base for all agents",
+                    isInteractable = true,
+                    createMarker = true
+                };
+                
+                if (!predefinedLocations.Any(l => l.name.ToLower() == "home"))
+                {
+                    predefinedLocations.Add(homeLocation);
+                }
+                
+                locationPositions.Add("home", homePosition);
+                CreateLocationMarker(homeLocation);
+            }
             
-            // Based on logs, these positions have been verified to work with the NavMesh
-            AddLocationIfMissing("park", new Vector3(350.47f, 49.63f, 432.7607f));
-            AddLocationIfMissing("library", new Vector3(325.03f, 50.29f, 407.87f));
-            AddLocationIfMissing("cantina", new Vector3(324.3666f, 50.33723f, 463.2347f));
-            AddLocationIfMissing("gym", new Vector3(300.5f, 50.23723f, 420.8247f));
-            AddLocationIfMissing("o2_regulator_room", new Vector3(324.3666f, 50.33723f, 463.2347f));
+            // Create a dictionary of default locations
+            Dictionary<string, Vector3> defaultLocations = new Dictionary<string, Vector3>
+            {
+                { "park", parkPosition },
+                { "library", libraryPosition },
+                { "cantina", cantinaPosition },
+                { "gym", gymPosition },
+                { "o2_regulator_room", o2RegulatorPosition },
+                { "center", spawnCenterPosition }
+            };
             
-            // Add a central fallback position known to be on the NavMesh (with exact Y coordinate)
-            AddLocationIfMissing("center", new Vector3(spawnCenterPosition.x, spawnYPosition, spawnCenterPosition.z));
+            // Add each default location if not already in predefinedLocations
+            foreach (var location in defaultLocations)
+            {
+                if (!locationPositions.ContainsKey(location.Key))
+                {
+                    LocationDefinition locDef = new LocationDefinition
+                    {
+                        name = location.Key,
+                        position = location.Value,
+                        description = $"This is the {location.Key} location",
+                        isInteractable = true,
+                        createMarker = true
+                    };
+                    
+                    if (!predefinedLocations.Any(l => l.name.ToLower() == location.Key))
+                    {
+                        predefinedLocations.Add(locDef);
+                    }
+                    
+                    locationPositions.Add(location.Key, location.Value);
+                    CreateLocationMarker(locDef);
+                }
+            }
         }
         
         Debug.Log($"Initialized {locationPositions.Count} locations");
@@ -154,9 +207,12 @@ public class WorldManager : MonoBehaviour
         {
             // Verify the position is on the NavMesh
             NavMeshHit hit;
+            Vector3 finalPosition;
+            
             if (NavMesh.SamplePosition(position, out hit, 5f, NavMesh.AllAreas))
             {
-                locationPositions.Add(name.ToLower(), hit.position);
+                finalPosition = hit.position;
+                locationPositions.Add(name.ToLower(), finalPosition);
             }
             else
             {
@@ -165,14 +221,87 @@ public class WorldManager : MonoBehaviour
                 // Try a wider search
                 if (NavMesh.SamplePosition(position, out hit, 20f, NavMesh.AllAreas))
                 {
-                    locationPositions.Add(name.ToLower(), hit.position);
+                    finalPosition = hit.position;
+                    locationPositions.Add(name.ToLower(), finalPosition);
                 }
                 else
                 {
                     Debug.LogError($"Could not find NavMesh position for location {name}");
+                    return; // Skip marker creation if we can't find a valid position
+                }
+            }
+            
+            // Create a marker for this location
+            CreateStandardLocationMarker(name, finalPosition);
+        }
+    }
+    
+    private void CreateStandardLocationMarker(string name, Vector3 position)
+    {
+        // Create a LocationDefinition for this standard location
+        LocationDefinition locationDef = new LocationDefinition
+        {
+            name = name,
+            position = position,
+            description = $"This is the {name} location",
+            isInteractable = true,
+            createMarker = true
+        };
+        
+        // Create the marker
+        CreateLocationMarker(locationDef);
+        
+        // Find the marker we just created and make it more visible
+        GameObject marker = GameObject.Find($"Location_{locationDef.name}");
+        if (marker != null)
+        {
+            // Find the visual cylinder component
+            Transform visual = marker.transform.GetChild(0);
+            if (visual != null)
+            {
+                // Make it more visible with a distinct material
+                Renderer renderer = visual.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    // Create a new material with a bright color based on the location name
+                    Material material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                    
+                    // Pick a color based on location name to make them distinct
+                    switch (name.ToLower())
+                    {
+                        case "home":
+                            material.color = new Color(0.2f, 0.6f, 1.0f, 1.0f); // Blue
+                            break;
+                        case "park":
+                            material.color = new Color(0.2f, 0.8f, 0.2f, 1.0f); // Green
+                            break;
+                        case "library":
+                            material.color = new Color(0.8f, 0.3f, 0.8f, 1.0f); // Purple
+                            break;
+                        case "cantina":
+                            material.color = new Color(1.0f, 0.6f, 0.2f, 1.0f); // Orange
+                            break;
+                        case "gym":
+                            material.color = new Color(1.0f, 0.2f, 0.2f, 1.0f); // Red
+                            break;
+                        case "o2_regulator_room":
+                            material.color = new Color(0.2f, 0.9f, 0.9f, 1.0f); // Cyan
+                            break;
+                        default:
+                            material.color = new Color(0.9f, 0.9f, 0.2f, 1.0f); // Yellow
+                            break;
+                    }
+                    
+                    // Apply the material
+                    renderer.material = material;
+                    
+                    // Make the marker larger
+                    visual.localScale = new Vector3(2.0f, 0.2f, 2.0f);
                 }
             }
         }
+        
+        Debug.Log($"Created marker for location: {name} at {position}");
     }
     
     private void CreateLocationMarker(LocationDefinition location)
@@ -196,12 +325,17 @@ public class WorldManager : MonoBehaviour
             // Create label
             GameObject labelObj = new GameObject("Label");
             labelObj.transform.SetParent(marker.transform);
-            labelObj.transform.localPosition = new Vector3(0, 0.3f, 0);
+            labelObj.transform.localPosition = new Vector3(0, 10f, 0); // Raised by 10 units
             
             var label = labelObj.AddComponent<TextMeshPro>();
             label.text = location.name;
-            label.fontSize = 4;
+            label.fontSize = 12; // Make text bigger
             label.alignment = TextAlignmentOptions.Center;
+            label.color = Color.white; // Make sure text is visible
+            
+            // Make text visible from all angles
+            label.transform.localRotation = Quaternion.identity;
+            label.transform.localScale = new Vector3(1, 1, 1);
         }
         
         // Make it interactable if needed
@@ -425,6 +559,12 @@ public class WorldManager : MonoBehaviour
         
         // Set the agent's current location in the controller
         controller.SetLocation(actualLocation);
+        
+        // Add all known locations to the agent's knowledge
+        foreach (var locationEntry in locationPositions)
+        {
+            controller.AddKnownLocation(locationEntry.Key, locationEntry.Value);
+        }
         
         // Register with backend communicator
         if (backendCommunicator != null)
@@ -765,6 +905,12 @@ public class WorldManager : MonoBehaviour
     public AgentController GetAgentById(string agentId)
     {
         return activeAgents.FirstOrDefault(a => a.agentId == agentId);
+    }
+    
+    // Utility method to get all location positions
+    public Dictionary<string, Vector3> GetLocationPositions()
+    {
+        return new Dictionary<string, Vector3>(locationPositions);
     }
     
     // Public methods for controlling agents
