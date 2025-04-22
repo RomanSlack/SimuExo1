@@ -70,31 +70,45 @@ public class EnvironmentReporter : MonoBehaviour
         cachedObjects.Clear();
         
         try {
-            // Only search for tags that actually exist in the project
+            // Create a copy of the tags list to avoid modification during iteration
+            List<string> validTags = new List<string>();
+            List<string> invalidTags = new List<string>();
+            
+            // First pass: identify valid and invalid tags
             foreach (var tag in interactableObjectTags)
             {
+                // Skip empty or null tags
+                if (string.IsNullOrEmpty(tag))
+                    continue;
+                    
                 try {
-                    // Skip empty or null tags
-                    if (string.IsNullOrEmpty(tag))
-                        continue;
-                        
-                    var objects = GameObject.FindGameObjectsWithTag(tag);
-                    foreach (var obj in objects)
-                    {
-                        if (!cachedObjects.ContainsKey(obj.name))
-                        {
-                            cachedObjects.Add(obj.name, obj.transform);
-                        }
-                    }
+                    GameObject.FindGameObjectsWithTag(tag);
+                    validTags.Add(tag);
                 }
                 catch (UnityException) {
-                    // Tag doesn't exist - just skip it
                     Debug.LogWarning($"Tag '{tag}' is not defined in project settings. Skipping.");
-                    
-                    // Remove this tag from the list to prevent future errors
-                    if (Application.isPlaying)
+                    invalidTags.Add(tag);
+                }
+            }
+            
+            // Remove invalid tags (outside of iteration)
+            if (Application.isPlaying && invalidTags.Count > 0)
+            {
+                foreach (var invalidTag in invalidTags)
+                {
+                    interactableObjectTags.Remove(invalidTag);
+                }
+            }
+            
+            // Now use only valid tags to find objects
+            foreach (var tag in validTags)
+            {
+                var objects = GameObject.FindGameObjectsWithTag(tag);
+                foreach (var obj in objects)
+                {
+                    if (!cachedObjects.ContainsKey(obj.name))
                     {
-                        interactableObjectTags.Remove(tag);
+                        cachedObjects.Add(obj.name, obj.transform);
                     }
                 }
             }

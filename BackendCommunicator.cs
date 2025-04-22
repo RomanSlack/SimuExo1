@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.Networking;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class BackendCommunicator : MonoBehaviour
 {
@@ -29,15 +30,22 @@ public class BackendCommunicator : MonoBehaviour
     private Coroutine pollingCoroutine;
     private Coroutine environmentUpdateCoroutine;
     private Dictionary<string, AgentController> trackedAgents = new Dictionary<string, AgentController>();
+    private WorldManager worldManager;
     
     void Awake()
     {
         environmentReporter = FindObjectOfType<EnvironmentReporter>();
+        worldManager = FindObjectOfType<WorldManager>();
         
         if (environmentReporter == null)
         {
             Debug.LogWarning("No EnvironmentReporter found, environment state updates will be disabled");
             sendEnvironmentUpdates = false;
+        }
+        
+        if (worldManager == null)
+        {
+            Debug.LogWarning("No WorldManager found, agent feedback may be limited");
         }
     }
     
@@ -332,7 +340,8 @@ public class BackendCommunicator : MonoBehaviour
         
         var decisionRequest = new Dictionary<string, object>
         {
-            { "agent_id", agentId }
+            { "agent_id", agentId },
+            { "user_input", GetAgentFeedback(agentId) } // Add a user_input for compatibility with old API
         };
         
         if (!string.IsNullOrEmpty(systemPrompt))
@@ -379,12 +388,38 @@ public class BackendCommunicator : MonoBehaviour
         }
         else if (method.ToUpper() == "POST")
         {
-            string jsonData = data != null ? JsonUtility.ToJson(data) : "{}";
+            string jsonData;
+            
+            // Use Newtonsoft.Json or other method to properly serialize dictionaries/complex objects
+            if (data != null)
+            {
+                if (data is Dictionary<string, object>)
+                {
+                    // Manual serialization for Dictionary<string, object>
+                    jsonData = SerializeDictionary(data as Dictionary<string, object>);
+                }
+                else
+                {
+                    // Default serialization for other types
+                    jsonData = JsonUtility.ToJson(data);
+                }
+            }
+            else
+            {
+                jsonData = "{}";
+            }
+            
             request = new UnityWebRequest(url, "POST");
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            
+            // Log the actual JSON being sent for debugging
+            if (data != null)
+            {
+                Debug.Log($"Sending JSON data to {endpoint}: {jsonData}");
+            }
         }
         else if (method.ToUpper() == "DELETE")
         {
@@ -440,5 +475,174 @@ public class BackendCommunicator : MonoBehaviour
         }
         
         request.Dispose();
+    }
+    
+    // Helper method to manually serialize Dictionary<string,object> to JSON
+    private string SerializeDictionary(Dictionary<string, object> dict)
+    {
+        if (dict == null) return "{}";
+        
+        List<string> items = new List<string>();
+        
+        foreach (var kvp in dict)
+        {
+            string key = kvp.Key;
+            object value = kvp.Value;
+            string valueStr = SerializeValue(value);
+            
+            items.Add($"\"{key}\":{valueStr}");
+        }
+        
+        return "{" + string.Join(",", items) + "}";
+    }
+    
+    // Helper method to serialize various value types to JSON
+    private string SerializeValue(object value)
+    {
+        if (value == null) return "null";
+        
+        // Handle common types
+        if (value is string)
+        {
+            // Escape special characters in the string
+            string str = (string)value;
+            str = str.Replace("\\", "\\\\")
+                     .Replace("\"", "\\\"")
+                     .Replace("\n", "\\n")
+                     .Replace("\r", "\\r")
+                     .Replace("\t", "\\t");
+            return $"\"{str}\"";
+        }
+        else if (value is bool)
+        {
+            return ((bool)value) ? "true" : "false";
+        }
+        else if (value is int || value is float || value is double)
+        {
+            return value.ToString();
+        }
+        else if (value is Dictionary<string, object>)
+        {
+            return SerializeDictionary(value as Dictionary<string, object>);
+        }
+        else if (value is List<object>)
+        {
+            return SerializeList((List<object>)value);
+        }
+        else if (value is object[])
+        {
+            return SerializeList(((object[])value).Cast<object>().ToList());
+        }
+        else if (value is List<Dictionary<string, object>>)
+        {
+            return SerializeListOfDicts(value as List<Dictionary<string, object>>);
+        }
+        else
+        {
+            // For other types, fall back to Unity's serializer
+            try
+            {
+                return JsonUtility.ToJson(value);
+            }
+            catch
+            {
+                // If that fails, just return the string representation
+                return $"\"{value}\"";
+            }
+        }
+    }
+    
+    // Helper method to serialize a list to JSON
+    private string SerializeList(List<object> list)
+    {
+        if (list == null) return "[]";
+        
+        List<string> items = new List<string>();
+        foreach (var item in list)
+        {
+            items.Add(SerializeValue(item));
+        }
+        
+        return "[" + string.Join(",", items) + "]";
+    }
+    
+    // Helper method to serialize a list of dictionaries
+    private string SerializeListOfDicts(List<Dictionary<string, object>> list)
+    {
+        if (list == null) return "[]";
+        
+        List<string> items = new List<string>();
+        foreach (var dict in list)
+        {
+            items.Add(SerializeDictionary(dict));
+        }
+        
+        return "[" + string.Join(",", items) + "]";
+    }
+    
+    // Get feedback about the agent's current state and environment
+    private string GetAgentFeedback(string agentId)
+    {
+        // Get the agent
+        AgentController agent = null;
+        if (trackedAgents.ContainsKey(agentId))
+        {
+            agent = trackedAgents[agentId];
+        }
+        else if (worldManager != null)
+        {
+            agent = worldManager.GetAgentById(agentId);
+        }
+        
+        if (agent == null)
+        {
+            return $"Agent {agentId} is in an unknown location.";
+        }
+        
+        // Get agent state
+        var agentState = agent.GetAgentState();
+        string location = agentState.ContainsKey("location") ? agentState["location"].ToString() : "unknown location";
+        string status = agentState.ContainsKey("status") ? agentState["status"].ToString() : "Idle";
+        
+        // Get nearby entities if environment reporter is available
+        string nearbyInfo = "";
+        if (environmentReporter != null)
+        {
+            var envState = environmentReporter.GetEnvironmentState(agentId);
+            
+            // Check if there are nearby agents
+            if (envState.ContainsKey("agents") && envState["agents"] is List<Dictionary<string, object>> nearbyAgents && nearbyAgents.Count > 0)
+            {
+                nearbyInfo += "\nNearby agents: ";
+                foreach (var nearbyAgent in nearbyAgents)
+                {
+                    if (nearbyAgent["id"].ToString() == agentId) continue; // Skip self
+                    
+                    nearbyInfo += $"{nearbyAgent["id"]} ({nearbyAgent["status"]}), ";
+                }
+                // Remove trailing comma and space
+                if (nearbyInfo.EndsWith(", "))
+                {
+                    nearbyInfo = nearbyInfo.Substring(0, nearbyInfo.Length - 2);
+                }
+            }
+            
+            // Check if there are nearby objects
+            if (envState.ContainsKey("objects") && envState["objects"] is List<Dictionary<string, object>> nearbyObjects && nearbyObjects.Count > 0)
+            {
+                nearbyInfo += "\nNearby objects: ";
+                foreach (var nearbyObj in nearbyObjects)
+                {
+                    nearbyInfo += $"{nearbyObj["name"]} ({nearbyObj["tag"]}), ";
+                }
+                // Remove trailing comma and space
+                if (nearbyInfo.EndsWith(", "))
+                {
+                    nearbyInfo = nearbyInfo.Substring(0, nearbyInfo.Length - 2);
+                }
+            }
+        }
+        
+        return $"Agent {agentId} is at {location} with status: {status}.{nearbyInfo}";
     }
 }
