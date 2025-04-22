@@ -13,7 +13,7 @@ public class RequestData
     public string agent_id;
     public string user_input;
     public string system_prompt;
-    public string task;  // New Task field
+    public string task; // New Task field
 }
 
 public class AgentBrain : MonoBehaviour
@@ -22,17 +22,17 @@ public class AgentBrain : MonoBehaviour
     [SerializeField] private string serverUrl = "http://127.0.0.1:3000/generate";
     [SerializeField] private NavMeshAgent navMeshAgent;
 
-    // Modular personality: set per agent via the Inspector.
+    // Modular personality set per agent via Inspector.
     [SerializeField, Tooltip("Set the agent's personality. It will be injected into the system prompt on first request.")]
     private string personality = "You are friendly, logical, and collaborative.";
 
-    // The current task (editable from the Inspector).
-    [SerializeField, Tooltip("Set the agent's current task (to guide decision-making).")]
+    // Current Task editable via Inspector.
+    [SerializeField, Tooltip("Set the agent's current task.")]
     private string task = "Investigate the O2 regulator issue.";
 
     // System prompt template with placeholders for personality and task.
-    [TextArea(8,15)]
-    [SerializeField, Tooltip("System prompt template. Use [PERSONALITY_HERE] and [TASK_HERE] as placeholders.")]
+    [TextArea(8, 15)]
+    [SerializeField, Tooltip("System prompt template. Use [PERSONALITY_HERE] and [TASK_HERE] placeholders.")]
     private string systemPromptTemplate = @"
 You are an autonomous game agent.
 PRIMARY GOAL: Collaborate with other agents to find and fix the broken O2 regulator on this Mars base.
@@ -48,7 +48,7 @@ ACTIONS:
 
 REQUIREMENTS:
 - Provide at least one short paragraph of reasoning.
-- The very last line of your response must begin exactly with MOVE:, NOTHING:, or CONVERSE: (with no additional text).
+- The very last line of your response must begin exactly with MOVE:, NOTHING:, or CONVERSE: (with no extra text).
 
 EXAMPLES:
 Example MOVE:
@@ -83,16 +83,16 @@ Personality: [PERSONALITY_HERE]
         Debug.Log($"{agentId} started. Ready for simulation steps...");
     }
 
-    // Build final system prompt (only sent on first request).
+    // Build the final system prompt by injecting personality and task.
     private string BuildSystemPrompt()
     {
         return systemPromptTemplate.Replace("[PERSONALITY_HERE]", personality)
                                    .Replace("[TASK_HERE]", task);
     }
 
+    // Request a decision; send the full system prompt only on the first request.
     public void RequestDecision(string feedbackInput)
     {
-        // Send full system prompt only on first request; later leave it blank.
         string sp = firstRequest ? BuildSystemPrompt() : "";
         firstRequest = false;
         Debug.Log($"{agentId} sending decision request with input:\n{feedbackInput}");
@@ -127,7 +127,7 @@ Personality: [PERSONALITY_HERE]
         Debug.Log($"{agentId} AI Output: {resp.text}");
         Debug.Log($"{agentId} Action: {resp.action}, Location: {resp.location}");
 
-        // Extract and log reasoning (all lines except final one)
+        // Log reasoning (all lines except final one).
         var lines = resp.text.Split('\n');
         if (lines.Length > 1)
         {
@@ -204,7 +204,7 @@ Personality: [PERSONALITY_HERE]
         {
             inConversation = true;
             converseTarget = location;
-            converseRounds = 3;
+            converseRounds = 3; // Set conversation rounds (can be adjusted)
             lastActionFeedback = $"Initiated conversation with {location}.";
             Debug.Log($"{agentId} entering conversation mode with {location} for {converseRounds} rounds.");
             // Forward a conversation message to the target agent.
@@ -217,12 +217,11 @@ Personality: [PERSONALITY_HERE]
         }
     }
 
-    // Called by another agent when a conversation message is forwarded.
+    // Called when a conversation message is received from another agent.
     public void ReceiveConversationMessage(string message)
     {
         Debug.Log($"{agentId} received conversation message: {message}");
-        // Append the forwarded message into the session by making a local POST-like entry.
-        // (The backend session persists; here we simply log it.)
+        // In production, you might auto-trigger a decision or update a chat UI here.
     }
 
     private AgentBrain FindAgent(string targetName)
@@ -262,8 +261,8 @@ Personality: [PERSONALITY_HERE]
             }
         }
         if (string.IsNullOrEmpty(info)) info = "none";
-        string feedback = inConversation
-            ? $"[CONVERSE mode with {converseTarget}, rounds left: {converseRounds}]"
+        string feedback = inConversation 
+            ? $"[CONVERSE mode with {converseTarget}, rounds left: {converseRounds}]" 
             : $"Last action: {lastActionFeedback}. Nearby: {info}.";
         Debug.Log($"{agentId} feedback: {feedback}");
         return feedback;

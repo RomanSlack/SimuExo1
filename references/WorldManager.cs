@@ -12,7 +12,8 @@ public class WorldManager : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.X))
+        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
+            && Input.GetKeyDown(KeyCode.X))
         {
             RunSimulationCycle();
         }
