@@ -376,7 +376,7 @@ public class WorldManager : MonoBehaviour
                 Dictionary<string, string> profileLocations = new Dictionary<string, string>
                 {
                     { "Agent_A", "park" },
-                    { "Agent_B", "cantina" },
+                    { "Agent_B", "home" },
                     { "Agent_C", "library" },
                     { "Agent_D", "o2_regulator_room" },
                     { "Agent_E", "gym" }
@@ -417,6 +417,7 @@ public class WorldManager : MonoBehaviour
         if (agentPrefab != null)
         {
             agentObject = Instantiate(agentPrefab, agentsContainer);
+            agentObject.transform.localScale = Vector3.one;   // <-- ADD THIS
             
             // Make sure it's on the Agent layer for detection
             agentObject.layer = LayerMask.NameToLayer("Agent");
@@ -462,11 +463,17 @@ public class WorldManager : MonoBehaviour
             controller = agentObject.AddComponent<AgentController>();
         }
         
-        // Add UI if missing
+        // Add UI if missing, but be careful with the prefab
         AgentUI ui = agentObject.GetComponent<AgentUI>();
         if (ui == null)
         {
+            // Log this issue
+            Debug.LogWarning($"AgentUI component was not found on the instantiated prefab. This is unexpected and may cause UI issues.");
             ui = agentObject.AddComponent<AgentUI>();
+        }
+        else
+        {
+            Debug.Log($"Using existing AgentUI component from prefab for agent {agentId}");
         }
         
         // Configure agent
@@ -475,8 +482,8 @@ public class WorldManager : MonoBehaviour
         ui.SetNameText(agentId);
         
         // Force UI position update immediately
-        ui.SetUIHeight(10.0f); // Use a consistent height
-        
+        ui.SetUIHeight(5.0f); // Use a consistent height
+
         // Set initial position and agent's current location
         Vector3 targetPosition;
         string actualLocation; // Track which location we actually use
@@ -851,8 +858,28 @@ public class WorldManager : MonoBehaviour
         
         try
         {
-            // For demo purposes, parsing a simplified response
-            // In production, use proper JSON parsing
+            // Get full text from response to display
+            string fullText = "";
+            if (response.Contains("\"text\":\""))
+            {
+                string textStart = "\"text\":\"";
+                int startIdx = response.IndexOf(textStart) + textStart.Length;
+                int endIdx = response.IndexOf("\"", startIdx);
+                if (endIdx > startIdx)
+                {
+                    fullText = response.Substring(startIdx, endIdx - startIdx);
+                }
+                
+                // Display the full response text as speech
+                var ui = agent.GetComponent<AgentUI>();
+                if (ui != null && !string.IsNullOrEmpty(fullText))
+                {
+                    ui.DisplaySpeech(fullText);
+                    Debug.Log($"Agent {agent.agentId} says: {fullText}");
+                }
+            }
+            
+            // Process action
             if (response.Contains("\"action_type\":\"move\""))
             {
                 // Extract location
@@ -872,7 +899,7 @@ public class WorldManager : MonoBehaviour
                 int endIdx = response.IndexOf("\"", startIdx);
                 string message = response.Substring(startIdx, endIdx - startIdx);
                 
-                // Display speech
+                // Display speech (already handled above with full text, but adding specific action)
                 var ui = agent.GetComponent<AgentUI>();
                 if (ui != null)
                 {
@@ -892,6 +919,15 @@ public class WorldManager : MonoBehaviour
                 if (target != null)
                 {
                     agent.InitiateConversation(target);
+                }
+            }
+            else if (response.Contains("\"action_type\":\"nothing\""))
+            {
+                // Just display the thinking/reasoning as speech
+                var ui = agent.GetComponent<AgentUI>();
+                if (ui != null && !string.IsNullOrEmpty(fullText))
+                {
+                    ui.DisplaySpeech(fullText);
                 }
             }
         }

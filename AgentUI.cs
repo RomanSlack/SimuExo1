@@ -6,12 +6,19 @@ using UnityEngine.UI;
 
 public class AgentUI : MonoBehaviour
 {
+
+
+    [Header("Dev Options")]
+    [SerializeField] private bool autoCreateMissingUI = false;   // leave OFF in your prefab
+    [SerializeField] private bool overrideFontSizes   = false;   // leave OFF in your prefab
+
+
     [Header("UI References")]
-    [SerializeField] private GameObject uiContainer;
-    [SerializeField] private TextMeshPro nameText;
-    [SerializeField] private TextMeshPro statusText;
-    [SerializeField] private GameObject speechBubble;
-    [SerializeField] private TextMeshPro speechText;
+    [SerializeField] public GameObject uiContainer; // Made public for debugging
+    [SerializeField] public TextMeshPro nameText; // Made public for debugging
+    [SerializeField] public TextMeshPro statusText; // Made public for debugging
+    [SerializeField] public GameObject speechBubble; // Made public for debugging
+    [SerializeField] public TextMeshPro speechText; // Made public for debugging
     
     [Header("UI Settings")]
     [SerializeField] public string agentId = "Agent_Default";
@@ -22,7 +29,7 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private float maxSpeechLength = 100;
     
     [Header("UI Positioning")]
-    [SerializeField] public Vector3 uiOffset = new Vector3(0, 10.0f, 0); // Increased Y height to position name above the model
+    [SerializeField] public Vector3 uiOffset = new Vector3(0, 0.0f, 0); // Increased Y height to position name above the model
     [SerializeField] private bool faceCamera = true;
     [SerializeField] private bool fadeWithDistance = true;
     [SerializeField] private float maxVisibleDistance = 50f;
@@ -44,88 +51,89 @@ public class AgentUI : MonoBehaviour
     private Dictionary<string, Color> statusColors = new Dictionary<string, Color>();
     
     void Awake()
+{
+    // ---------- 1. FIND ALREADY-WIRED OBJECTS ----------
+    if (uiContainer == null)
+        uiContainer = transform.Find("UI_Container")?.gameObject;
+
+    nameText    ??= uiContainer?.transform.Find("NameText")    ?.GetComponent<TextMeshPro>();
+    statusText  ??= uiContainer?.transform.Find("StatusText")  ?.GetComponent<TextMeshPro>();
+    speechBubble??= uiContainer?.transform.Find("SpeechBubble")?.gameObject;
+    speechText  ??= speechBubble?.transform.Find("SpeechText") ?.GetComponent<TextMeshPro>();
+
+    // ---------- 2. OPTIONALLY CREATE MISSING PARTS ----------
+    if (autoCreateMissingUI)
     {
-        // Initialize UI elements if not set
         if (uiContainer == null)
         {
             uiContainer = new GameObject("UI_Container");
             uiContainer.transform.SetParent(transform);
             uiContainer.transform.localPosition = uiOffset;
         }
-        else
-        {
-            // Force update position for existing containers (prefab instances)
-            uiContainer.transform.localPosition = uiOffset;
-        }
-        
+
         if (nameText == null)
         {
-            GameObject nameObj = new GameObject("NameText");
-            nameObj.transform.SetParent(uiContainer.transform);
-            nameObj.transform.localPosition = Vector3.zero;
-            nameText = nameObj.AddComponent<TextMeshPro>();
+            var go = new GameObject("NameText");
+            go.transform.SetParent(uiContainer.transform);
+            nameText = go.AddComponent<TextMeshPro>();
             nameText.alignment = TextAlignmentOptions.Center;
-            nameText.fontSize = 4;
         }
-        
+
         if (statusText == null)
         {
-            GameObject statusObj = new GameObject("StatusText");
-            statusObj.transform.SetParent(uiContainer.transform);
-            statusObj.transform.localPosition = new Vector3(0, -0.5f, 0);
-            statusText = statusObj.AddComponent<TextMeshPro>();
+            var go = new GameObject("StatusText");
+            go.transform.SetParent(uiContainer.transform);
+            statusText = go.AddComponent<TextMeshPro>();
             statusText.alignment = TextAlignmentOptions.Center;
-            statusText.fontSize = 3;
         }
-        
+
         if (speechBubble == null)
         {
             speechBubble = new GameObject("SpeechBubble");
             speechBubble.transform.SetParent(uiContainer.transform);
-            speechBubble.transform.localPosition = new Vector3(0, 1f, 0);
-            
-            // Add speech bubble background
-            GameObject background = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            background.transform.SetParent(speechBubble.transform);
-            background.transform.localPosition = Vector3.zero;
-            background.transform.localScale = new Vector3(2f, 1f, 1f);
-            
-            Material bubbleMat = new Material(Shader.Find("Standard"));
-            bubbleMat.color = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-            background.GetComponent<Renderer>().material = bubbleMat;
-            
-            // Add speech text
-            GameObject speechObj = new GameObject("SpeechText");
-            speechObj.transform.SetParent(speechBubble.transform);
-            speechObj.transform.localPosition = new Vector3(0, 0, -0.01f);
-            speechText = speechObj.AddComponent<TextMeshPro>();
+
+            // background quad
+            var bg = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            bg.transform.SetParent(speechBubble.transform);
+            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            mat.color = new Color(0.1f, 0.1f, 0.1f, 0.7f);
+            bg.GetComponent<Renderer>().material = mat;
+
+            // speech text
+            var textGO = new GameObject("SpeechText");
+            textGO.transform.SetParent(speechBubble.transform);
+            speechText = textGO.AddComponent<TextMeshPro>();
             speechText.alignment = TextAlignmentOptions.Center;
-            speechText.fontSize = 3.5f;
-            speechText.color = speechColor;
-            speechText.margin = new Vector4(0.2f, 0.2f, 0.2f, 0.2f);
-            speechText.enableWordWrapping = true;
         }
-        
-        // Initialize status colors
-        statusColors["Idle"] = Color.gray;
-        statusColors["Moving"] = Color.green;
-        statusColors["Conversing"] = Color.yellow;
-        statusColors["Interacting"] = Color.cyan;
-        statusColors["Error"] = Color.red;
-        
-        // Hide speech bubble initially
-        if (speechBubble != null)
-        {
-            speechBubble.SetActive(false);
-        }
-        
-        // Record original position for animation
-        originalUIPosition = uiContainer.transform.localPosition;
+
+        // if we created the bubble above, it starts hidden
+        speechBubble?.SetActive(false);
     }
+
+    // ---------- 3. OPTIONAL FONT OVERRIDES ----------
+    if (overrideFontSizes)
+    {
+        if (nameText   != null) nameText.fontSize   = 4f;
+        if (statusText != null) statusText.fontSize = 3f;
+        if (speechText != null) speechText.fontSize = 3.5f;
+    }
+
+    // record base position for bobbing
+    if (uiContainer != null) originalUIPosition = uiContainer.transform.localPosition;
+}
+
     
     void Start()
     {
         mainCamera = Camera.main;
+        
+        // Debug output to help diagnose UI issues
+        Debug.Log($"[{agentId}] Start() - UI References:");
+        Debug.Log($"  uiContainer: {(uiContainer != null ? "FOUND" : "NULL")}");
+        Debug.Log($"  nameText: {(nameText != null ? "FOUND" : "NULL")}");
+        Debug.Log($"  statusText: {(statusText != null ? "FOUND" : "NULL")}");
+        Debug.Log($"  speechBubble: {(speechBubble != null ? "FOUND" : "NULL")}");
+        Debug.Log($"  speechText: {(speechText != null ? "FOUND" : "NULL")}");
         
         // Set initial texts
         SetNameText(agentId);
@@ -133,6 +141,17 @@ public class AgentUI : MonoBehaviour
         
         // Apply UI offset (for both new and existing agents)
         UpdateUIPosition();
+        
+        // Check for font sizes
+        if (nameText != null) {
+            Debug.Log($"  nameText fontSize: {nameText.fontSize}");
+        }
+        if (statusText != null) {
+            Debug.Log($"  statusText fontSize: {statusText.fontSize}");
+        }
+        if (speechText != null) {
+            Debug.Log($"  speechText fontSize: {speechText.fontSize}");
+        }
     }
     
     /// <summary>
@@ -159,10 +178,10 @@ public class AgentUI : MonoBehaviour
     {
         if (faceCamera && mainCamera != null)
         {
-            // Make UI face the camera
+            // Make UI face the camera, but rotate 180 degrees to fix backwards text
             uiContainer.transform.rotation = Quaternion.LookRotation(
                 uiContainer.transform.position - mainCamera.transform.position
-            );
+            ) * Quaternion.Euler(0, 180, 0); // Add 180 degree Y rotation to fix flipped text
         }
         
         if (fadeWithDistance && mainCamera != null)
@@ -188,19 +207,22 @@ public class AgentUI : MonoBehaviour
                 statusText.color = color;
             }
             
-            if (speechText != null && speechBubble.activeSelf)
+            if (speechText != null && speechBubble != null && speechBubble.activeSelf)
             {
                 Color color = speechText.color;
                 color.a = alpha;
                 speechText.color = color;
                 
-                // Also update speech bubble background
-                var background = speechBubble.transform.GetChild(0).GetComponent<Renderer>();
-                if (background != null)
+                // Also update speech bubble background if it exists
+                if (speechBubble.transform.childCount > 0)
                 {
-                    Color bgColor = background.material.color;
-                    bgColor.a = alpha * 0.7f;
-                    background.material.color = bgColor;
+                    var background = speechBubble.transform.GetChild(0).GetComponent<Renderer>();
+                    if (background != null)
+                    {
+                        Color bgColor = background.material.color;
+                        bgColor.a = alpha * 0.7f;
+                        background.material.color = bgColor;
+                    }
                 }
             }
         }
@@ -277,29 +299,116 @@ public class AgentUI : MonoBehaviour
     
     private IEnumerator DisplaySpeechCoroutine(string message)
     {
-        speechBubble.SetActive(true);
+        // Debug message
+        Debug.Log($"[{agentId}] Displaying speech: {message.Substring(0, Mathf.Min(30, message.Length))}...");
         
-        if (useTypewriterEffect)
+        // Force-find the speech bubble and speech text if they're missing
+        if (speechBubble == null)
         {
-            // Type out the text character by character
-            speechText.text = "";
-            for (int i = 0; i < message.Length; i++)
+            Debug.LogWarning($"[{agentId}] Speech bubble is NULL before display attempt! Trying to find it...");
+            Transform bubbleTransform = uiContainer?.transform.Find("SpeechBubble");
+            if (bubbleTransform != null)
             {
-                speechText.text += message[i];
-                yield return new WaitForSeconds(1f / textAnimationSpeed);
+                speechBubble = bubbleTransform.gameObject;
+                Debug.Log($"[{agentId}] Found speech bubble in hierarchy!");
+            }
+            else
+            {
+                Debug.LogError($"[{agentId}] Cannot find speech bubble. Speech will not display!");
+                yield break;
             }
         }
-        else
+        
+        if (speechText == null && speechBubble != null)
         {
-            // Show the entire text at once
+            Debug.LogWarning($"[{agentId}] Speech text is NULL! Trying to find it...");
+            Transform textTransform = speechBubble.transform.Find("SpeechText");
+            if (textTransform != null)
+            {
+                speechText = textTransform.GetComponent<TextMeshPro>();
+                if (speechText == null)
+                {
+                    speechText = textTransform.gameObject.AddComponent<TextMeshPro>();
+                }
+                Debug.Log($"[{agentId}] Found speech text in hierarchy!");
+            }
+            else
+            {
+                Debug.LogError($"[{agentId}] Cannot find or create speech text. Speech will not display properly!");
+            }
+        }
+        
+        // Set text content
+        if (speechText != null)
+        {
+            // Configure speech text properties each time to ensure they're correct
+            speechText.fontSize = 3.5f;
+            speechText.color = speechColor;
+            speechText.alignment = TextAlignmentOptions.Center;
+            speechText.enableWordWrapping = true;
+            speechText.overflowMode = TextOverflowModes.Overflow;
+            speechText.margin = new Vector4(0.2f, 0.2f, 0.2f, 0.2f);
+            
+            // Set the message
             speechText.text = message;
+            Debug.Log($"[{agentId}] Set speech text.");
+        }
+        
+        // Make speech bubble visible
+        if (speechBubble != null)
+        {
+            speechBubble.SetActive(true);
+            Debug.Log($"[{agentId}] Activated speech bubble.");
+            
+            // Adjust background size if needed
+            if (speechBubble.transform.childCount > 0)
+            {
+                var background = speechBubble.transform.GetChild(0);
+                if (background != null && speechText != null)
+                {
+                    // Get preferred text values 
+                    float textWidth = Mathf.Max(3.0f, speechText.preferredWidth);
+                    float textHeight = Mathf.Max(1.0f, speechText.preferredHeight);
+                    
+                    Debug.Log($"[{agentId}] Speech text preferred size: {textWidth}x{textHeight}");
+                    
+                    // Add padding and adjust scale
+                    background.transform.localScale = new Vector3(
+                        textWidth / 5.0f + 1.0f, 
+                        textHeight / 5.0f + 0.5f, 
+                        1.0f
+                    );
+                }
+            }
+        }
+        
+        // Reset text content if using typewriter effect
+        if (useTypewriterEffect && speechText != null)
+        {
+            string fullMessage = message;
+            speechText.text = "";
+            
+            // Type out the text character by character
+            for (int i = 0; i < fullMessage.Length; i++)
+            {
+                speechText.text += fullMessage[i];
+                yield return new WaitForSeconds(1f / textAnimationSpeed);
+            }
+            
+            Debug.Log($"[{agentId}] Completed typewriter effect.");
         }
         
         // Wait for the speech duration
+        Debug.Log($"[{agentId}] Speech displayed. Waiting {speechDuration} seconds.");
         yield return new WaitForSeconds(speechDuration);
         
         // Hide the speech bubble
-        speechBubble.SetActive(false);
+        if (speechBubble != null)
+        {
+            speechBubble.SetActive(false);
+            Debug.Log($"[{agentId}] Deactivated speech bubble.");
+        }
+        
         currentSpeechCoroutine = null;
     }
     
