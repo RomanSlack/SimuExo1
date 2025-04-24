@@ -27,6 +27,7 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private Color speechColor = Color.white;
     [SerializeField] private float speechDuration = 5.0f;
     [SerializeField] private float maxSpeechLength = 100;
+    [SerializeField] private Vector2 speechBubbleSize = new Vector2(3.0f, 1.5f); // Fixed size for speech bubble
     
     [Header("UI Positioning")]
     [SerializeField] public Vector3 uiOffset = new Vector3(0, 0.0f, 0); // Increased Y height to position name above the model
@@ -338,6 +339,12 @@ public class AgentUI : MonoBehaviour
             }
         }
         
+        // Make sure speech bubble is visible
+        if (speechBubble != null && !speechBubble.activeSelf)
+        {
+            speechBubble.SetActive(true);
+        }
+        
         // Set text content
         if (speechText != null)
 {
@@ -357,19 +364,16 @@ public class AgentUI : MonoBehaviour
     speechText.text = message;
     Debug.Log($"[{agentId}] Set speech text.");
 
-    // Adjust background quad scale *after* setting the text
+    // Use fixed size for speech bubble instead of dynamic sizing
     if (speechBubble.transform.childCount > 0)
     {
         var background = speechBubble.transform.GetChild(0);
         if (background != null)
         {
-            float textWidth  = Mathf.Max(3.0f, speechText.preferredWidth);
-            float textHeight = Mathf.Max(1.0f, speechText.preferredHeight);
-            float pad = 0.2f;
-
+            // Use the fixed size defined in the inspector
             background.transform.localScale = new Vector3(
-                textWidth + pad,
-                textHeight + pad,
+                speechBubbleSize.x,
+                speechBubbleSize.y,
                 1f
             );
         }
@@ -383,24 +387,20 @@ public class AgentUI : MonoBehaviour
             speechBubble.SetActive(true);
             Debug.Log($"[{agentId}] Activated speech bubble.");
             
-            // Adjust background size if needed
+            // Adjust background to fixed size
             if (speechBubble.transform.childCount > 0)
             {
                 var background = speechBubble.transform.GetChild(0);
                 if (background != null && speechText != null)
                 {
-                    // Get preferred text values 
-                    float textWidth = Mathf.Max(3.0f, speechText.preferredWidth);
-                    float textHeight = Mathf.Max(1.0f, speechText.preferredHeight);
-                    
-                    Debug.Log($"[{agentId}] Speech text preferred size: {textWidth}x{textHeight}");
-                    
-                    // Add padding and adjust scale
+                    // Use the fixed size for consistent appearance
                     background.transform.localScale = new Vector3(
-                        textWidth / 5.0f + 1.0f, 
-                        textHeight / 5.0f + 0.5f, 
+                        speechBubbleSize.x,
+                        speechBubbleSize.y,
                         1.0f
                     );
+                    
+                    Debug.Log($"[{agentId}] Speech bubble set to fixed size: {speechBubbleSize.x}x{speechBubbleSize.y}");
                 }
             }
         }
@@ -421,16 +421,12 @@ public class AgentUI : MonoBehaviour
             Debug.Log($"[{agentId}] Completed typewriter effect.");
         }
         
-        // Wait for the speech duration
-        Debug.Log($"[{agentId}] Speech displayed. Waiting {speechDuration} seconds.");
+        // Wait for the speech duration but don't hide the bubble
+        Debug.Log($"[{agentId}] Speech displayed. Waiting {speechDuration} seconds before accepting new speech.");
         yield return new WaitForSeconds(speechDuration);
         
-        // Hide the speech bubble
-        if (speechBubble != null)
-        {
-            speechBubble.SetActive(false);
-            Debug.Log($"[{agentId}] Deactivated speech bubble.");
-        }
+        // Speech bubble stays visible - no deactivation
+        Debug.Log($"[{agentId}] Speech display complete, but bubble remains visible.");
         
         currentSpeechCoroutine = null;
     }

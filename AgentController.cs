@@ -114,7 +114,24 @@ public class AgentController : MonoBehaviour
         // Update animation parameters if animator exists
         if (animator != null)
         {
-            // Check if the animator has the required parameters before setting them
+            // Check for standard animator parameters and patterns
+            if (HasAnimatorParameter("isWalking", AnimatorControllerParameterType.Bool))
+            {
+                // Based on Tool_Move.cs reference implementation
+                if (navMeshAgent.isOnNavMesh)
+                {
+                    if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance || navMeshAgent.velocity.sqrMagnitude < 0.01f)
+                    {
+                        animator.SetBool("isWalking", false);
+                    }
+                    else if (navMeshAgent.velocity.sqrMagnitude > 0.01f)
+                    {
+                        animator.SetBool("isWalking", true);
+                    }
+                }
+            }
+            
+            // Maintain existing parameter support for backward compatibility
             if (HasAnimatorParameter("IsMoving", AnimatorControllerParameterType.Bool))
             {
                 animator.SetBool("IsMoving", isMoving);
