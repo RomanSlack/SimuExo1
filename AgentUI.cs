@@ -27,7 +27,6 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private Color speechColor = Color.white;
     [SerializeField] private float speechDuration = 5.0f;
     [SerializeField] private float maxSpeechLength = 100;
-    [SerializeField] private Vector2 speechBubbleSize = new Vector2(3.0f, 1.5f); // Fixed size for speech bubble
     
     [Header("UI Positioning")]
     [SerializeField] public Vector3 uiOffset = new Vector3(0, 0.0f, 0); // Increased Y height to position name above the model
@@ -364,20 +363,7 @@ public class AgentUI : MonoBehaviour
     speechText.text = message;
     Debug.Log($"[{agentId}] Set speech text.");
 
-    // Use fixed size for speech bubble instead of dynamic sizing
-    if (speechBubble.transform.childCount > 0)
-    {
-        var background = speechBubble.transform.GetChild(0);
-        if (background != null)
-        {
-            // Use the fixed size defined in the inspector
-            background.transform.localScale = new Vector3(
-                speechBubbleSize.x,
-                speechBubbleSize.y,
-                1f
-            );
-        }
-    }
+    // Keep speech bubble at original prefab size - no size changes
 }
 
         
@@ -387,22 +373,8 @@ public class AgentUI : MonoBehaviour
             speechBubble.SetActive(true);
             Debug.Log($"[{agentId}] Activated speech bubble.");
             
-            // Adjust background to fixed size
-            if (speechBubble.transform.childCount > 0)
-            {
-                var background = speechBubble.transform.GetChild(0);
-                if (background != null && speechText != null)
-                {
-                    // Use the fixed size for consistent appearance
-                    background.transform.localScale = new Vector3(
-                        speechBubbleSize.x,
-                        speechBubbleSize.y,
-                        1.0f
-                    );
-                    
-                    Debug.Log($"[{agentId}] Speech bubble set to fixed size: {speechBubbleSize.x}x{speechBubbleSize.y}");
-                }
-            }
+            // Keep speech bubble at original prefab size
+            Debug.Log($"[{agentId}] Using original prefab speech bubble size");
         }
         
         // Reset text content if using typewriter effect
