@@ -134,6 +134,7 @@ public class AgentController : MonoBehaviour
         }
         
         // Check if reached destination
+        if (navMeshAgent.isOnNavMesh) {
         if (isMoving && !navMeshAgent.pathPending)
         {
             if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
@@ -143,6 +144,7 @@ public class AgentController : MonoBehaviour
                     OnReachedDestination();
                 }
             }
+        }
         }
     }
     

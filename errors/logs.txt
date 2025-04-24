@@ -57,6 +57,31 @@ UnityEngine.Debug:Log (object)
 HttpServer:StartServer () (at Assets/Scripts/HttpServer.cs:85)
 HttpServer:Awake () (at Assets/Scripts/HttpServer.cs:58)
 
+Initializing scene setup...
+UnityEngine.Debug:Log (object)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:31)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+Found existing WorldManager
+UnityEngine.Debug:Log (object)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:50)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+NavMesh detected and is valid
+UnityEngine.Debug:Log (object)
+SceneSetupManager:CheckNavMesh () (at Assets/Scripts/SceneSetupManager.cs:136)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:66)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+Scene setup complete
+UnityEngine.Debug:Log (object)
+SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:69)
+SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
+
+UIFixer is present but set to not fix on start (respecting prefab settings)
+UnityEngine.Debug:Log (object)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:23)
+
 Checking connection to backend at http://localhost:3000/health
 UnityEngine.Debug:Log (object)
 BackendCommunicator/<CheckConnection>d__23:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:115)
@@ -80,14 +105,6 @@ WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManag
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-AgentUI initialization complete for Agent_Default
-UnityEngine.Debug:Log (object)
-AgentUI:Awake () (at Assets/Scripts/AgentUI.cs:254)
-UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:419)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
-
 [Agent_Default] Failed to place agent on NavMesh during initialization
 UnityEngine.Debug:LogWarning (object)
 AgentController:Awake () (at Assets/Scripts/AgentController.cs:77)
@@ -106,83 +123,83 @@ WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 A game object can only be in one layer. The layer needs to be in the range [0...31]
 UnityEngine.GameObject:set_layer (int)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:422)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:423)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 Using existing AgentUI component from prefab for agent Agent_A
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:475)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:476)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-Updated UI position for Agent_A to (0.00, 10.00, 0.00)
+Updated UI position for Agent_A to (0.00, 6.00, 0.00)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:305)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:484)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:174)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:485)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Current location set to: park
 UnityEngine.Debug:Log (object)
 AgentController:SetLocation (string) (at Assets/Scripts/AgentController.cs:529)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:567)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:568)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: home to (336.70, 47.50, 428.61)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: park to (350.47, 49.63, 432.76)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: library to (325.03, 50.29, 407.87)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: cantina to (324.37, 50.34, 463.23)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: gym to (300.50, 50.24, 420.82)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_A] Updated known location: o2_regulator_room to (324.37, 50.34, 443.23)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 Agent with ID Agent_A is already registered
 UnityEngine.Debug:LogWarning (object)
 BackendCommunicator:RegisterAgent (AgentController) (at Assets/Scripts/BackendCommunicator.cs:246)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:578)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:579)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 Created new agent: Agent_A at location: park
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:584)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:585)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
@@ -203,14 +220,6 @@ WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManag
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-AgentUI initialization complete for Agent_Default
-UnityEngine.Debug:Log (object)
-AgentUI:Awake () (at Assets/Scripts/AgentUI.cs:254)
-UnityEngine.Object:Instantiate<UnityEngine.GameObject> (UnityEngine.GameObject,UnityEngine.Transform)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:419)
-WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
-WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
-
 [Agent_Default] Failed to place agent on NavMesh during initialization
 UnityEngine.Debug:LogWarning (object)
 AgentController:Awake () (at Assets/Scripts/AgentController.cs:77)
@@ -229,87 +238,87 @@ WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 A game object can only be in one layer. The layer needs to be in the range [0...31]
 UnityEngine.GameObject:set_layer (int)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:422)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:423)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 Using existing AgentUI component from prefab for agent Agent_B
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:475)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:476)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-Updated UI position for Agent_B to (0.00, 10.00, 0.00)
+Updated UI position for Agent_B to (0.00, 6.00, 0.00)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:305)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:484)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:174)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:485)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-[Agent_B] Current location set to: cantina
+[Agent_B] Current location set to: home
 UnityEngine.Debug:Log (object)
 AgentController:SetLocation (string) (at Assets/Scripts/AgentController.cs:529)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:567)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:568)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: home to (336.70, 47.50, 428.61)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: park to (350.47, 49.63, 432.76)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: library to (325.03, 50.29, 407.87)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: cantina to (324.37, 50.34, 463.23)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: gym to (300.50, 50.24, 420.82)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 [Agent_B] Updated known location: o2_regulator_room to (324.37, 50.34, 443.23)
 UnityEngine.Debug:Log (object)
 AgentController:AddKnownLocation (string,UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:513)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:572)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:573)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
 Agent with ID Agent_B is already registered
 UnityEngine.Debug:LogWarning (object)
 BackendCommunicator:RegisterAgent (AgentController) (at Assets/Scripts/BackendCommunicator.cs:246)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:578)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:579)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-Created new agent: Agent_B at location: cantina
+Created new agent: Agent_B at location: home
 UnityEngine.Debug:Log (object)
-WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:584)
+WorldManager:CreateNewAgent (string,string,string) (at Assets/Scripts/WorldManager.cs:585)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:393)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
 
-Created agent Agent_B at location: cantina
+Created agent Agent_B at location: home
 UnityEngine.Debug:Log (object)
 WorldManager:InitializeDefaultAgents () (at Assets/Scripts/WorldManager.cs:396)
 WorldManager:Start () (at Assets/Scripts/WorldManager.cs:93)
@@ -340,126 +349,111 @@ UnityEngine.Debug:Log (object)
 SceneSetupManager:InitializeScene () (at Assets/Scripts/SceneSetupManager.cs:69)
 SceneSetupManager:Start () (at Assets/Scripts/SceneSetupManager.cs:22)
 
-Updated UI position for Agent_B to (0.00, 20.00, 0.00)
+AgentUIManager is present but set to not update on start (respecting prefab settings)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:305)
-AgentUIManager:UpdateAllAgentUIHeights () (at Assets/Scripts/AgentUIManager.cs:28)
-AgentUIManager:Start () (at Assets/Scripts/AgentUIManager.cs:16)
-
-Updated UI position for Agent_A to (0.00, 20.00, 0.00)
-UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:SetUIHeight (single) (at Assets/Scripts/AgentUI.cs:305)
-AgentUIManager:UpdateAllAgentUIHeights () (at Assets/Scripts/AgentUIManager.cs:28)
-AgentUIManager:Start () (at Assets/Scripts/AgentUIManager.cs:16)
-
-Updated 2 agent UIs to height 20
-UnityEngine.Debug:Log (object)
-AgentUIManager:UpdateAllAgentUIHeights () (at Assets/Scripts/AgentUIManager.cs:32)
-AgentUIManager:Start () (at Assets/Scripts/AgentUIManager.cs:16)
+AgentUIManager:Start () (at Assets/Scripts/AgentUIManager.cs:28)
 
 [Agent_A] Start() - UI References:
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:262)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:131)
 
   uiContainer: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:263)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:132)
 
   nameText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:264)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:133)
 
   statusText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:265)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:134)
 
   speechBubble: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:266)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:135)
 
   speechText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:267)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:136)
 
-Updated UI position for Agent_A to (0.00, 20.00, 0.00)
+Updated UI position for Agent_A to (0.00, 6.00, 0.00)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:274)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:143)
 
-  nameText fontSize: 4
+  nameText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:278)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:147)
 
-  statusText fontSize: 3
+  statusText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:281)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:150)
 
-  speechText fontSize: 3.5
+  speechText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:284)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:153)
 
 Agent Agent_A state changed: location=park, status=At park
 UnityEngine.Debug:Log (object)
 BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:341)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:103)
 
-[Agent_A] Initialized at position (350.72, 47.50, 433.31)
+[Agent_A] Initialized at position (351.58, 47.50, 434.44)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:108)
 
-[Agent_Default] Initialized at position (351.23, 49.39, 433.33)
+[Agent_Default] Initialized at position (352.09, 49.39, 434.46)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:108)
 
 [Agent_B] Start() - UI References:
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:262)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:131)
 
   uiContainer: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:263)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:132)
 
   nameText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:264)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:133)
 
   statusText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:265)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:134)
 
   speechBubble: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:266)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:135)
 
   speechText: FOUND
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:267)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:136)
 
-Updated UI position for Agent_B to (0.00, 20.00, 0.00)
+Updated UI position for Agent_B to (0.00, 6.00, 0.00)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:274)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:143)
 
-  nameText fontSize: 4
+  nameText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:278)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:147)
 
-  statusText fontSize: 3
+  statusText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:281)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:150)
 
-  speechText fontSize: 3.5
+  speechText fontSize: 36
 UnityEngine.Debug:Log (object)
-AgentUI:Start () (at Assets/Scripts/AgentUI.cs:284)
+AgentUI:Start () (at Assets/Scripts/AgentUI.cs:153)
 
-Agent Agent_B state changed: location=cantina, status=At cantina
+Agent Agent_B state changed: location=home, status=At home
 UnityEngine.Debug:Log (object)
 BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:341)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:103)
 
-[Agent_B] Initialized at position (324.37, 47.50, 461.05)
+[Agent_B] Initialized at position (337.13, 47.50, 428.09)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:108)
 
@@ -468,26 +462,61 @@ UnityEngine.Debug:Log (object)
 BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:341)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:103)
 
-[Agent_Default] Initialized at position (324.89, 49.39, 461.07)
+[Agent_Default] Initialized at position (337.65, 49.39, 428.12)
 UnityEngine.Debug:Log (object)
 AgentController:Start () (at Assets/Scripts/AgentController.cs:108)
 
-Updated UI position for Agent_B to (0.00, 5.00, 0.00)
+Agent Agent_B UI before fix: height = 6
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:51)
-UIFixer:Start () (at Assets/Scripts/UIFixer.cs:17)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:46)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
 
-Updated UI position for Agent_A to (0.00, 5.00, 0.00)
+Updated UI position for Agent_B to (0.00, 6.00, 0.00)
 UnityEngine.Debug:Log (object)
-AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:297)
-UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:51)
-UIFixer:Start () (at Assets/Scripts/UIFixer.cs:17)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:70)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
 
-Fixed 2/2 agent UIs by setting height to 5
+Respected Agent Agent_B UI prefab settings with height 6
 UnityEngine.Debug:Log (object)
-UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:55)
-UIFixer:Start () (at Assets/Scripts/UIFixer.cs:17)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:71)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
+
+Agent Agent_A UI before fix: height = 6
+UnityEngine.Debug:Log (object)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:46)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
+
+Updated UI position for Agent_A to (0.00, 6.00, 0.00)
+UnityEngine.Debug:Log (object)
+AgentUI:UpdateUIPosition () (at Assets/Scripts/AgentUI.cs:166)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:70)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
+
+Respected Agent Agent_A UI prefab settings with height 6
+UnityEngine.Debug:Log (object)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:71)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
+
+Updated 2/2 agent UIs while respecting prefab settings
+UnityEngine.Debug:Log (object)
+UIFixer:FixAllAgentUIs () (at Assets/Scripts/UIFixer.cs:79)
+UIFixer:Start () (at Assets/Scripts/UIFixer.cs:19)
+
+Found WorldManager object with missing script - fixing
+UnityEngine.Debug:LogWarning (object)
+SceneFixHelper/<FixMissingScripts>d__3:MoveNext () (at Assets/Scripts/SceneFixHelper.cs:27)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+WorldManager script is now active on SimulationManager
+UnityEngine.Debug:Log (object)
+SceneFixHelper/<FixMissingScripts>d__3:MoveNext () (at Assets/Scripts/SceneFixHelper.cs:65)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Scene has been fixed to use SimulationManager instead of broken WorldManager
+UnityEngine.Debug:Log (object)
+SceneFixHelper/<FixMissingScripts>d__3:MoveNext () (at Assets/Scripts/SceneFixHelper.cs:68)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
 Successfully connected to backend
 UnityEngine.Debug:Log (object)
@@ -501,12 +530,12 @@ UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr
 
 Priming active agents with initial context...
 UnityEngine.Debug:Log (object)
-WorldManager/<PrimeAgents>d__56:MoveNext () (at Assets/Scripts/WorldManager.cs:1026)
+WorldManager/<PrimeAgents>d__56:MoveNext () (at Assets/Scripts/WorldManager.cs:1027)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
 Active agents to prime: Agent_A, Agent_B
 UnityEngine.Debug:Log (object)
-WorldManager/<PrimeAgents>d__56:MoveNext () (at Assets/Scripts/WorldManager.cs:1036)
+WorldManager/<PrimeAgents>d__56:MoveNext () (at Assets/Scripts/WorldManager.cs:1037)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
 Sending JSON data to /profiles/Agent_A: {"agent_id":"Agent_A","force":false}
@@ -516,7 +545,7 @@ UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr
 
 Updated profile for agent Agent_A
 UnityEngine.Debug:Log (object)
-WorldManager/<>c__DisplayClass56_1:<PrimeAgents>b__2 (bool,string) (at Assets/Scripts/WorldManager.cs:1054)
+WorldManager/<>c__DisplayClass56_1:<PrimeAgents>b__2 (bool,string) (at Assets/Scripts/WorldManager.cs:1055)
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
@@ -527,7 +556,7 @@ UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr
 
 Updated profile for agent Agent_B
 UnityEngine.Debug:Log (object)
-WorldManager/<>c__DisplayClass56_1:<PrimeAgents>b__2 (bool,string) (at Assets/Scripts/WorldManager.cs:1054)
+WorldManager/<>c__DisplayClass56_1:<PrimeAgents>b__2 (bool,string) (at Assets/Scripts/WorldManager.cs:1055)
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
@@ -561,7 +590,7 @@ UnityEngine.Debug:LogWarning (object)
 EnvironmentReporter:RefreshCache () (at Assets/Scripts/EnvironmentReporter.cs:90)
 EnvironmentReporter:Update () (at Assets/Scripts/EnvironmentReporter.cs:53)
 
-Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At cantina","location":"cantina","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"At park","location":"park","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""}],"locations":[],"objects":[]}
+Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At home","location":"home","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"At park","location":"park","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""}],"locations":[],"objects":[]}
 UnityEngine.Debug:Log (object)
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
@@ -574,11 +603,11 @@ UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr
 
 Successfully primed 2 active agents for simulation
 UnityEngine.Debug:Log (object)
-WorldManager/<>c__DisplayClass56_0:<PrimeAgents>b__1 (bool,string) (at Assets/Scripts/WorldManager.cs:1082)
+WorldManager/<>c__DisplayClass56_0:<PrimeAgents>b__1 (bool,string) (at Assets/Scripts/WorldManager.cs:1083)
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
-Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At cantina","location":"cantina","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"At park","location":"park","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""}],"locations":[],"objects":[]}
+Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At home","location":"home","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"At park","location":"park","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""}],"locations":[],"objects":[]}
 UnityEngine.Debug:Log (object)
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
@@ -589,8 +618,431 @@ BackendCommunicator/<>c:<SendEnvironmentUpdates>b__25_0 (bool,string) (at Assets
 BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
 UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
 
-HTTP server stopped
+Running simulation cycle...
 UnityEngine.Debug:Log (object)
-HttpServer:StopServer () (at Assets/Scripts/HttpServer.cs:118)
-HttpServer:OnDestroy () (at Assets/Scripts/HttpServer.cs:64)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:675)
+WorldManager:Update () (at Assets/Scripts/WorldManager.cs:116)
+
+Priming agents before first simulation cycle...
+UnityEngine.Debug:Log (object)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:680)
+WorldManager:Update () (at Assets/Scripts/WorldManager.cs:116)
+
+Sending JSON data to /agents/prime: {"force":false}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:681)
+WorldManager:Update () (at Assets/Scripts/WorldManager.cs:116)
+
+Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At home","location":"home","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"At park","location":"park","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""}],"locations":[],"objects":[]}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Environment state updated successfully
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c:<SendEnvironmentUpdates>b__25_0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:219)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Successfully primed agents for simulation
+UnityEngine.Debug:Log (object)
+WorldManager/<>c__DisplayClass47_0:<PrimeAndRunCycle>b__0 (bool,string) (at Assets/Scripts/WorldManager.cs:729)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Running simulation cycle...
+UnityEngine.Debug:Log (object)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:675)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent feedback using location: park for agent Agent_A
+UnityEngine.Debug:Log (object)
+WorldManager:GetAgentFeedback (AgentController) (at Assets/Scripts/WorldManager.cs:817)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:693)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Backend GetAgentFeedback using location: park for agent Agent_A
+UnityEngine.Debug:Log (object)
+BackendCommunicator:GetAgentFeedback (string) (at Assets/Scripts/BackendCommunicator.cs:656)
+BackendCommunicator/<RequestAgentDecision>d__30:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:382)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<string>:Start<BackendCommunicator/<RequestAgentDecision>d__30> (BackendCommunicator/<RequestAgentDecision>d__30&)
+BackendCommunicator:RequestAgentDecision (string,string,string)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:830)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:696)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Sending JSON data to /generate: {"agent_id":"Agent_A","user_input":"Agent Agent_A is at park with status: At park.\nNearby agents: Agent_B (At home)"}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+BackendCommunicator/<RequestAgentDecision>d__30:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:400)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<string>:Start<BackendCommunicator/<RequestAgentDecision>d__30> (BackendCommunicator/<RequestAgentDecision>d__30&)
+BackendCommunicator:RequestAgentDecision (string,string,string)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:830)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:696)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent feedback using location: home for agent Agent_B
+UnityEngine.Debug:Log (object)
+WorldManager:GetAgentFeedback (AgentController) (at Assets/Scripts/WorldManager.cs:817)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:693)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Backend GetAgentFeedback using location: home for agent Agent_B
+UnityEngine.Debug:Log (object)
+BackendCommunicator:GetAgentFeedback (string) (at Assets/Scripts/BackendCommunicator.cs:656)
+BackendCommunicator/<RequestAgentDecision>d__30:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:382)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<string>:Start<BackendCommunicator/<RequestAgentDecision>d__30> (BackendCommunicator/<RequestAgentDecision>d__30&)
+BackendCommunicator:RequestAgentDecision (string,string,string)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:830)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:696)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Sending JSON data to /generate: {"agent_id":"Agent_B","user_input":"Agent Agent_B is at home with status: At home.\nNearby agents: Agent_A (At park)"}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+BackendCommunicator/<RequestAgentDecision>d__30:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:400)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<string>:Start<BackendCommunicator/<RequestAgentDecision>d__30> (BackendCommunicator/<RequestAgentDecision>d__30&)
+BackendCommunicator:RequestAgentDecision (string,string,string)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:830)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+WorldManager:RunSimulationCycle () (at Assets/Scripts/WorldManager.cs:696)
+WorldManager/<PrimeAndRunCycle>d__47:MoveNext () (at Assets/Scripts/WorldManager.cs:747)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Received decision for agent Agent_A
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c__DisplayClass30_0:<RequestAgentDecision>b__0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:407)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Displaying speech: Since I am currently at the pa...
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:303)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Set speech text.
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:354)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Activated speech bubble.
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:361)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Speech text preferred size: 16x1
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:373)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent Agent_A says: Since I am currently at the park and there are no notable objects or other agents nearby, it would be beneficial to explore a new area. The library could provide valuable information regarding environmental systems and resource management. \n\nMOVE: library
+UnityEngine.Debug:Log (object)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:878)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Requesting move to library
+UnityEngine.Debug:Log (object)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:158)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Found known location library at (325.03, 50.29, 407.87)
+UnityEngine.Debug:Log (object)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:166)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Not on NavMesh, attempting to place on NavMesh...
+UnityEngine.Debug:LogWarning (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:218)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_A] Successfully placed on NavMesh at (351.61, 47.12, 434.40)
+UnityEngine.Debug:Log (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:225)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+"SetDestination" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:SetDestination (UnityEngine.Vector3)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:268)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[Agent_A] Moving to library at (325.27, 48.82, 406.83)
+UnityEngine.Debug:Log (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:272)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent Agent_A state changed: location=park, status=Moving to library
+UnityEngine.Debug:Log (object)
+BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:341)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:278)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"At home","location":"home","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_A","position":{},"rotation":{},"status":"Moving to library","location":"park","is_moving":true,"is_in_conversation":false,"conversation_partner":null,"desired_location":"library"}],"locations":[],"objects":[]}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:354)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:278)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Environment state updated with agent Agent_A changes
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c__DisplayClass29_0:<NotifyAgentStateChange>b__0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:361)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+Received decision for agent Agent_B
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c__DisplayClass30_0:<RequestAgentDecision>b__0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:407)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+[Agent_B] Displaying speech: It's important to start checki...
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:303)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Set speech text.
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:354)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Activated speech bubble.
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:361)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Speech text preferred size: 16.03x1
+UnityEngine.Debug:Log (object)
+AgentUI/<DisplaySpeechCoroutine>d__37:MoveNext () (at Assets/Scripts/AgentUI.cs:373)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+AgentUI:DisplaySpeech (string) (at Assets/Scripts/AgentUI.cs:297)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:877)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent Agent_B says: It's important to start checking the colony systems, and the park is nearby where I can check for any issues. I'll move there to ensure everything is functioning properly. \n\nMOVE: park
+UnityEngine.Debug:Log (object)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:878)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Requesting move to park
+UnityEngine.Debug:Log (object)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:158)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Found known location park at (350.47, 49.63, 432.76)
+UnityEngine.Debug:Log (object)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:166)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Not on NavMesh, attempting to place on NavMesh...
+UnityEngine.Debug:LogWarning (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:218)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+[Agent_B] Successfully placed on NavMesh at (337.16, 47.24, 428.05)
+UnityEngine.Debug:Log (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:225)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+"SetDestination" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:SetDestination (UnityEngine.Vector3)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:268)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[Agent_B] Moving to park at (350.47, 47.08, 432.76)
+UnityEngine.Debug:Log (object)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:272)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Agent Agent_B state changed: location=home, status=Moving to park
+UnityEngine.Debug:Log (object)
+BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:341)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:278)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Sending JSON data to /env/update: {"agents":[{"id":"Agent_Default","position":{},"rotation":{},"status":"Idle","location":"","is_moving":false,"is_in_conversation":false,"conversation_partner":null,"desired_location":""},{"id":"Agent_B","position":{},"rotation":{},"status":"Moving to park","location":"home","is_moving":true,"is_in_conversation":false,"conversation_partner":null,"desired_location":"park"},{"id":"Agent_A","position":{},"rotation":{},"status":"Moving to library","location":"park","is_moving":true,"is_in_conversation":false,"conversation_partner":null,"desired_location":"library"}],"locations":[],"objects":[]}
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:462)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+BackendCommunicator:NotifyAgentStateChange (AgentController) (at Assets/Scripts/BackendCommunicator.cs:354)
+AgentController:MoveTo (UnityEngine.Vector3) (at Assets/Scripts/AgentController.cs:278)
+AgentController:RequestMove (string) (at Assets/Scripts/AgentController.cs:168)
+WorldManager:ProcessAgentResponse (AgentController,string) (at Assets/Scripts/WorldManager.cs:892)
+WorldManager/<RequestAgentDecisionAsync>d__49:MoveNext () (at Assets/Scripts/WorldManager.cs:849)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+Environment state updated with agent Agent_B changes
+UnityEngine.Debug:Log (object)
+BackendCommunicator/<>c__DisplayClass29_0:<NotifyAgentStateChange>b__0 (bool,string) (at Assets/Scripts/BackendCommunicator.cs:361)
+BackendCommunicator/<SendRequest>d__31:MoveNext () (at Assets/Scripts/BackendCommunicator.cs:486)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr) (at /home/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
+
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+UnityEngine.AI.NavMeshAgent:get_remainingDistance ()
+AgentController:Update () (at Assets/Scripts/AgentController.cs:139)
 

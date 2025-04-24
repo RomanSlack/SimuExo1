@@ -482,7 +482,7 @@ public class WorldManager : MonoBehaviour
         ui.SetNameText(agentId);
         
         // Force UI position update immediately
-        ui.SetUIHeight(5.0f); // Use a consistent height
+        ui.SetUIHeight(6.0f); // Use a consistent height
 
         // Set initial position and agent's current location
         Vector3 targetPosition;
@@ -541,6 +541,13 @@ public class WorldManager : MonoBehaviour
             Vector3 finalPosition = hit.position;
             finalPosition.y = spawnYPosition;
             agentObject.transform.position = finalPosition;
+
+            NavMeshAgent nav = agentObject.GetComponent<NavMeshAgent>();
+            if (nav != null)
+            {
+                nav.Warp(finalPosition);   // formally place agent on the NavMesh
+                nav.updateRotation = true; // keep the usual rotation updates
+            }
         }
         else
         {

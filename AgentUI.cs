@@ -340,19 +340,42 @@ public class AgentUI : MonoBehaviour
         
         // Set text content
         if (speechText != null)
+{
+    // Only override font size and color if explicitly allowed
+    if (overrideFontSizes)
+    {
+        speechText.fontSize = 3.5f;
+        speechText.color    = speechColor;
+    }
+
+    speechText.alignment = TextAlignmentOptions.Center;
+    speechText.enableWordWrapping = true;
+    speechText.overflowMode = TextOverflowModes.Overflow;
+    speechText.margin = new Vector4(0.2f, 0.2f, 0.2f, 0.2f);
+
+    // Set the message
+    speechText.text = message;
+    Debug.Log($"[{agentId}] Set speech text.");
+
+    // Adjust background quad scale *after* setting the text
+    if (speechBubble.transform.childCount > 0)
+    {
+        var background = speechBubble.transform.GetChild(0);
+        if (background != null)
         {
-            // Configure speech text properties each time to ensure they're correct
-            speechText.fontSize = 3.5f;
-            speechText.color = speechColor;
-            speechText.alignment = TextAlignmentOptions.Center;
-            speechText.enableWordWrapping = true;
-            speechText.overflowMode = TextOverflowModes.Overflow;
-            speechText.margin = new Vector4(0.2f, 0.2f, 0.2f, 0.2f);
-            
-            // Set the message
-            speechText.text = message;
-            Debug.Log($"[{agentId}] Set speech text.");
+            float textWidth  = Mathf.Max(3.0f, speechText.preferredWidth);
+            float textHeight = Mathf.Max(1.0f, speechText.preferredHeight);
+            float pad = 0.2f;
+
+            background.transform.localScale = new Vector3(
+                textWidth + pad,
+                textHeight + pad,
+                1f
+            );
         }
+    }
+}
+
         
         // Make speech bubble visible
         if (speechBubble != null)
