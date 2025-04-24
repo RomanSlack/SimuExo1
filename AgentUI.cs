@@ -354,14 +354,24 @@ public class AgentUI : MonoBehaviour
         speechText.color    = speechColor;
     }
 
-    speechText.alignment = TextAlignmentOptions.Center;
+    // Don't adjust any of the text settings to preserve the prefab configuration
+    // Only set properties needed for text display
     speechText.enableWordWrapping = true;
-    speechText.overflowMode = TextOverflowModes.Overflow;
-    speechText.margin = new Vector4(0.2f, 0.2f, 0.2f, 0.2f);
+    
+    // Store original transform values to preserve position and size
+    Vector3 originalLocalPosition = speechText.transform.localPosition;
+    Vector2 originalSizeDelta = speechText.rectTransform.sizeDelta;
+    TextAlignmentOptions originalAlignment = speechText.alignment;
 
     // Set the message
     speechText.text = message;
-    Debug.Log($"[{agentId}] Set speech text.");
+    
+    // Restore original position and properties to ensure text stays centered correctly
+    speechText.transform.localPosition = originalLocalPosition;
+    speechText.rectTransform.sizeDelta = originalSizeDelta;
+    speechText.alignment = originalAlignment;
+    
+    Debug.Log($"[{agentId}] Set speech text with preserved positioning.");
 
     // Keep speech bubble at original prefab size - no size changes
 }
@@ -381,14 +391,33 @@ public class AgentUI : MonoBehaviour
         if (useTypewriterEffect && speechText != null)
         {
             string fullMessage = message;
+            
+            // Store all original positioning data
+            Vector3 originalLocalPosition = speechText.transform.localPosition;
+            Vector2 originalSizeDelta = speechText.rectTransform.sizeDelta;
+            TextAlignmentOptions originalAlignment = speechText.alignment;
+            
+            // Start with empty text
             speechText.text = "";
             
             // Type out the text character by character
             for (int i = 0; i < fullMessage.Length; i++)
             {
+                // Add the next character
                 speechText.text += fullMessage[i];
+                
+                // Restore original values after each character addition to maintain positioning
+                speechText.transform.localPosition = originalLocalPosition;
+                speechText.rectTransform.sizeDelta = originalSizeDelta;
+                speechText.alignment = originalAlignment;
+                
                 yield return new WaitForSeconds(1f / textAnimationSpeed);
             }
+            
+            // Final position correction
+            speechText.transform.localPosition = originalLocalPosition;
+            speechText.rectTransform.sizeDelta = originalSizeDelta;
+            speechText.alignment = originalAlignment;
             
             Debug.Log($"[{agentId}] Completed typewriter effect.");
         }
