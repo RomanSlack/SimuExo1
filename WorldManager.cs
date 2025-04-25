@@ -13,8 +13,8 @@ public class WorldManager : MonoBehaviour
     [SerializeField] public Transform agentsContainer; // Make public so SceneSetupManager can access it
     [SerializeField] private int maxAgents = 20;
     [SerializeField] private bool autoInitializeAgents = true;
-    [SerializeField] private float spawnYPosition = 47.5f; // Exact Y value for agent spawning
-    [SerializeField] private Vector3 spawnCenterPosition = new Vector3(336.7f, 47.5f, 428.61f); // Central spawn position
+    [SerializeField] private float spawnYPosition = 48.48f; // Exact Y value for agent spawning
+    [SerializeField] private Vector3 spawnCenterPosition = new Vector3(369.37f, 48.48f, 437.23f); // Central spawn position
     [SerializeField] private float spawnRandomOffset = 5.0f; // Random offset for X and Z (in units)
     
     [Header("Environment")]
@@ -23,12 +23,12 @@ public class WorldManager : MonoBehaviour
     
     // Default locations with their coordinates
     [Header("Default Locations")]
-    [SerializeField] private Vector3 homePosition = new Vector3(336.7f, 47.5f, 428.61f);
-    [SerializeField] private Vector3 parkPosition = new Vector3(350.47f, 49.63f, 432.7607f);
-    [SerializeField] private Vector3 libraryPosition = new Vector3(325.03f, 50.29f, 407.87f);
-    [SerializeField] private Vector3 cantinaPosition = new Vector3(324.3666f, 50.33723f, 463.2347f);
-    [SerializeField] private Vector3 gymPosition = new Vector3(300.5f, 50.23723f, 420.8247f);
-    [SerializeField] private Vector3 o2RegulatorPosition = new Vector3(324.3666f, 50.33723f, 443.2347f); // Moved to not overlap with Cantina
+    [SerializeField] private Vector3 homePosition = new Vector3(369.37f, 48.48f, 437.23f);
+    [SerializeField] private Vector3 plantfarmPosition = new Vector3(346.88f, 48.48f, 446.15f);
+    [SerializeField] private Vector3 cantinaPosition = new Vector3(361.01f, 48.48f, 428.35f);
+    [SerializeField] private Vector3 solarfarmPosition = new Vector3(388.15f, 48.48f, 453.3f);
+    [SerializeField] private Vector3 electricalroomPosition = new Vector3(386.55f, 48.48f, 424.57f);
+    [SerializeField] private Vector3 livingquartersPosition = new Vector3(368.69f, 48.48f, 466.66f);
     
     [Header("Simulation Control")]
     [SerializeField] private bool runAutomatically = false;
@@ -165,11 +165,11 @@ public class WorldManager : MonoBehaviour
             // Create a dictionary of default locations
             Dictionary<string, Vector3> defaultLocations = new Dictionary<string, Vector3>
             {
-                { "park", parkPosition },
-                { "library", libraryPosition },
+                { "plantfarm", plantfarmPosition },
                 { "cantina", cantinaPosition },
-                { "gym", gymPosition },
-                { "o2_regulator_room", o2RegulatorPosition }
+                { "solarfarm", solarfarmPosition },
+                { "electricalroom", electricalroomPosition },
+                { "livingquarters", livingquartersPosition }
                 // Removed "center" as it's redundant with "home"
             };
             
@@ -375,11 +375,11 @@ public class WorldManager : MonoBehaviour
             {
                 Dictionary<string, string> profileLocations = new Dictionary<string, string>
                 {
-                    { "Agent_A", "park" },
+                    { "Agent_A", "home" },
                     { "Agent_B", "home" },
-                    { "Agent_C", "library" },
-                    { "Agent_D", "o2_regulator_room" },
-                    { "Agent_E", "gym" }
+                    { "Agent_C", "cantina" },
+                    { "Agent_D", "electricalroom" },
+                    { "Agent_E", "solarfarm" }
                 };
                 
                 // Use known default locations from profiles if available
