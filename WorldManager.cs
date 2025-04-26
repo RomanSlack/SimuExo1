@@ -41,6 +41,11 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private bool useEmojiMode = false;
     [SerializeField] private KeyCode emojiToggleKey = KeyCode.E;
     
+    [Header("Agent Appearance")]
+    [SerializeField] private Material[] agentMaterials;  // Array of materials to assign randomly to agents
+    [SerializeField] private Color[] agentColors;        // Array of colors to assign randomly to agents
+    [SerializeField] private bool applyRandomColors = true;
+    
     [Header("Debug Visualization")]
     [SerializeField] private bool showDebugInfo = true;
     
@@ -141,6 +146,87 @@ public class WorldManager : MonoBehaviour
             if (ui != null)
             {
                 ui.ToggleEmojiMode(useEmojis);
+            }
+        }
+    }
+    
+    // Apply a random material or color to the agent
+    private void ApplyRandomAppearance(GameObject agentObject)
+    {
+        if (agentObject == null) return;
+        
+        // Find all renderers on the agent and its children
+        Renderer[] renderers = agentObject.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            Debug.LogWarning($"No renderers found on agent {agentObject.name}");
+            return;
+        }
+        
+        // Decide whether to use a material or a color
+        bool useMaterial = agentMaterials != null && agentMaterials.Length > 0;
+        bool useColor = agentColors != null && agentColors.Length > 0;
+        
+        if (!useMaterial && !useColor)
+        {
+            Debug.LogWarning("No materials or colors defined for random agent appearance");
+            return;
+        }
+        
+        // Use materials if available, otherwise fall back to colors
+        if (useMaterial)
+        {
+            // Select a random material from the array
+            Material randomMaterial = agentMaterials[UnityEngine.Random.Range(0, agentMaterials.Length)];
+            
+            if (randomMaterial != null)
+            {
+                Debug.Log($"Applying random material to agent {agentObject.name}");
+                
+                // Apply the material to all renderers (except UI elements)
+                foreach (Renderer renderer in renderers)
+                {
+                    // Skip UI elements (which might be part of the agent's UI)
+                    if (renderer.transform.GetComponentInParent<AgentUI>() != null || 
+                        renderer.transform.parent?.parent?.GetComponent<AgentUI>() != null)
+                        continue;
+                    
+                    // Create a new material instance to avoid modifying the original asset
+                    Material[] materials = new Material[renderer.materials.Length];
+                    for (int i = 0; i < materials.Length; i++)
+                    {
+                        materials[i] = new Material(randomMaterial);
+                    }
+                    renderer.materials = materials;
+                }
+            }
+        }
+        else if (useColor)
+        {
+            // Select a random color from the array
+            Color randomColor = agentColors[UnityEngine.Random.Range(0, agentColors.Length)];
+            
+            Debug.Log($"Applying random color to agent {agentObject.name}");
+            
+            // Apply the color to all renderers (except UI elements)
+            foreach (Renderer renderer in renderers)
+            {
+                // Skip UI elements
+                if (renderer.transform.GetComponentInParent<AgentUI>() != null || 
+                    renderer.transform.parent?.parent?.GetComponent<AgentUI>() != null)
+                    continue;
+                
+                // Create a new material instance for each existing material
+                Material[] materials = renderer.materials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    Material originalMaterial = materials[i];
+                    // Create a new instance to avoid modifying the asset
+                    materials[i] = new Material(originalMaterial);
+                    // Set the color
+                    materials[i].color = randomColor;
+                }
+                renderer.materials = materials;
             }
         }
     }
@@ -510,6 +596,12 @@ public class WorldManager : MonoBehaviour
         controller.agentId = agentId;
         ui.agentId = agentId;
         ui.SetNameText(agentId);
+        
+        // Apply random material/color if enabled
+        if (applyRandomColors)
+        {
+            ApplyRandomAppearance(agentObject);
+        }
         
         // Don't force UI height - use the values from prefab instead
 
