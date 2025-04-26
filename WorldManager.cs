@@ -333,8 +333,10 @@ public class WorldManager : MonoBehaviour
             label.alignment = TextAlignmentOptions.Center;
             label.color = Color.white; // Make sure text is visible
             
-            // Make text visible from all angles
-            label.transform.localRotation = Quaternion.identity;
+            // Add script to make the label face the camera
+            labelObj.AddComponent<LabelFaceCamera>();
+            
+            // Set initial scale
             label.transform.localScale = new Vector3(1, 1, 1);
         }
         
