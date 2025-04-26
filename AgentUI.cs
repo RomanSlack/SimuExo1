@@ -29,7 +29,7 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private float maxSpeechLength = 100;
     
     [Header("UI Positioning")]
-    [SerializeField] public Vector3 uiOffset = new Vector3(0, 0.0f, 0); // Increased Y height to position name above the model
+    [SerializeField] public Vector3 uiOffset = new Vector3(0, 5.0f, 0); // Increased Y height to position name above the model
     [SerializeField] private bool faceCamera = true;
     [SerializeField] private bool fadeWithDistance = true;
     [SerializeField] private float maxVisibleDistance = 50f;
