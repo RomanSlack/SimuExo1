@@ -36,6 +36,10 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private KeyCode manualStepKey = KeyCode.X;
     [SerializeField] private KeyCode modifierKey = KeyCode.LeftShift;
     [SerializeField] private bool pauseSimulationOnError = true;
+    [SerializeField] private bool enableTimedAutoMode = false;
+    [SerializeField] private float timedAutoModeInterval = 20.0f;
+    [SerializeField] private KeyCode timedAutoModeToggleKey = KeyCode.T;
+    private float timedAutoModeTimer = 0.0f;
     
     [Header("UI Controls")]
     [SerializeField] private bool useEmojiMode = false;
@@ -134,6 +138,26 @@ public class WorldManager : MonoBehaviour
             useEmojiMode = !useEmojiMode;
             SetAllAgentsEmojiMode(useEmojiMode);
             Debug.Log($"Emoji mode set to: {useEmojiMode}");
+        }
+        
+        // Toggle timed auto mode
+        if (Input.GetKey(modifierKey) && Input.GetKeyDown(timedAutoModeToggleKey))
+        {
+            enableTimedAutoMode = !enableTimedAutoMode;
+            timedAutoModeTimer = 0f; // Reset timer on toggle
+            Debug.Log($"Timed auto mode {(enableTimedAutoMode ? "enabled" : "disabled")} - Interval: {timedAutoModeInterval} seconds");
+        }
+        
+        // Timed auto mode functionality (simulates pressing Shift+X every timedAutoModeInterval seconds)
+        if (enableTimedAutoMode && !simulationRunning)
+        {
+            timedAutoModeTimer += Time.deltaTime;
+            if (timedAutoModeTimer >= timedAutoModeInterval)
+            {
+                timedAutoModeTimer = 0f;
+                Debug.Log("Timed auto mode: Running simulation step");
+                RunSimulationCycle();
+            }
         }
     }
     
@@ -952,6 +976,13 @@ public class WorldManager : MonoBehaviour
         
         simulationRunning = true;
         
+        // Disable timed auto mode when continuous simulation is started
+        if (enableTimedAutoMode)
+        {
+            Debug.Log("Timed auto mode disabled due to continuous simulation starting");
+            enableTimedAutoMode = false;
+        }
+        
         if (simulationRoutine != null)
         {
             StopCoroutine(simulationRoutine);
@@ -973,6 +1004,9 @@ public class WorldManager : MonoBehaviour
             StopCoroutine(simulationRoutine);
             simulationRoutine = null;
         }
+        
+        // Reset timed auto mode timer when simulation stops
+        timedAutoModeTimer = 0f;
         
         Debug.Log("Simulation stopped");
     }
