@@ -42,6 +42,11 @@ public class AgentUI : MonoBehaviour
     [SerializeField] private float bobAmplitude = 0.05f;
     [SerializeField] private float bobSpeed = 1.0f;
     
+    [Header("Emoji Display")]
+    [SerializeField] private bool useEmojis = false; // Defaults to OFF - use speech bubbles by default
+    [SerializeField] private GameObject emojiContainer;
+    [SerializeField] private EmojiDisplay emojiDisplay;
+    
     // Internal state
     private Camera mainCamera;
     private Coroutine currentSpeechCoroutine;
@@ -60,6 +65,16 @@ public class AgentUI : MonoBehaviour
     statusText  ??= uiContainer?.transform.Find("StatusText")  ?.GetComponent<TextMeshPro>();
     speechBubble??= uiContainer?.transform.Find("SpeechBubble")?.gameObject;
     speechText  ??= speechBubble?.transform.Find("SpeechText") ?.GetComponent<TextMeshPro>();
+    
+    // Find emoji container and display component
+    emojiContainer ??= uiContainer?.transform.Find("EmojiContainer")?.gameObject;
+    emojiDisplay ??= emojiContainer?.GetComponent<EmojiDisplay>();
+    
+    // Initialize emoji display state
+    if (emojiContainer != null)
+    {
+        emojiContainer.SetActive(useEmojis);
+    }
 
     // ---------- 2. OPTIONALLY CREATE MISSING PARTS ----------
     if (autoCreateMissingUI)
@@ -165,6 +180,27 @@ public class AgentUI : MonoBehaviour
             originalUIPosition = uiContainer.transform.localPosition;
             Debug.Log($"Updated UI position for {agentId} to {uiOffset}");
         }
+    }
+    
+    // Toggle between emoji mode and speech bubble mode
+    public void ToggleEmojiMode(bool useEmojisMode)
+    {
+        useEmojis = useEmojisMode;
+        
+        // Update the visibility of containers
+        if (emojiContainer != null)
+            emojiContainer.SetActive(useEmojis);
+            
+        if (speechBubble != null)
+            speechBubble.SetActive(!useEmojis && speechBubble.activeSelf);
+            
+        // Update the emoji to match current status if switching to emoji mode
+        if (useEmojis && emojiDisplay != null)
+        {
+            emojiDisplay.SetEmojiForStatus(statusText?.text ?? "Idle");
+        }
+        
+        Debug.Log($"[{agentId}] Emoji mode set to: {useEmojis}");
     }
     
     // Allow changing the UI height at runtime
@@ -274,12 +310,25 @@ public class AgentUI : MonoBehaviour
             {
                 statusAnimationCoroutine = StartCoroutine(AnimateStatusChange(status));
             }
+            
+            // Update emoji if emoji mode is enabled
+            if (useEmojis && emojiDisplay != null)
+            {
+                emojiDisplay.SetEmojiForStatus(status);
+                
+                // Make sure emoji container is active and speech bubble is inactive
+                if (emojiContainer != null)
+                    emojiContainer.SetActive(true);
+                    
+                if (speechBubble != null && speechBubble.activeSelf)
+                    speechBubble.SetActive(false);
+            }
         }
     }
     
     public void DisplaySpeech(string message)
     {
-        if (speechText == null || speechBubble == null)
+        if ((speechText == null || speechBubble == null) && (emojiDisplay == null || !useEmojis))
             return;
         
         // Cancel any ongoing speech
@@ -294,10 +343,31 @@ public class AgentUI : MonoBehaviour
             message = message.Substring(0, (int)maxSpeechLength) + "...";
         }
         
-        currentSpeechCoroutine = StartCoroutine(DisplaySpeechCoroutine(message));
+        // Handle emoji mode
+        if (useEmojis && emojiDisplay != null)
+        {
+            // Update emoji to speaking
+            emojiDisplay.SetEmojiForSpeech();
+            
+            // Make sure emoji container is visible
+            if (emojiContainer != null)
+                emojiContainer.SetActive(true);
+                
+            // Hide speech bubble in emoji mode
+            if (speechBubble != null)
+                speechBubble.SetActive(false);
+                
+            // Still start the coroutine to handle timing
+            currentSpeechCoroutine = StartCoroutine(DisplaySpeechCoroutine(message, true));
+        }
+        else
+        {
+            // Normal speech bubble mode
+            currentSpeechCoroutine = StartCoroutine(DisplaySpeechCoroutine(message, false));
+        }
     }
     
-    private IEnumerator DisplaySpeechCoroutine(string message)
+    private IEnumerator DisplaySpeechCoroutine(string message, bool emojiModeActive = false)
     {
         // Debug message
         Debug.Log($"[{agentId}] Displaying speech: {message.Substring(0, Mathf.Min(30, message.Length))}...");
@@ -426,8 +496,16 @@ public class AgentUI : MonoBehaviour
         Debug.Log($"[{agentId}] Speech displayed. Waiting {speechDuration} seconds before accepting new speech.");
         yield return new WaitForSeconds(speechDuration);
         
-        // Speech bubble stays visible - no deactivation
-        Debug.Log($"[{agentId}] Speech display complete, but bubble remains visible.");
+        // For emoji mode, revert to the current status emoji after speaking
+        if (emojiModeActive && emojiDisplay != null)
+        {
+            emojiDisplay.SetEmojiForStatus(statusText?.text ?? "Idle");
+        }
+        else
+        {
+            // Speech bubble stays visible - no deactivation
+            Debug.Log($"[{agentId}] Speech display complete, but bubble remains visible.");
+        }
         
         currentSpeechCoroutine = null;
     }

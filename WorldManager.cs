@@ -37,6 +37,10 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private KeyCode modifierKey = KeyCode.LeftShift;
     [SerializeField] private bool pauseSimulationOnError = true;
     
+    [Header("UI Controls")]
+    [SerializeField] private bool useEmojiMode = false;
+    [SerializeField] private KeyCode emojiToggleKey = KeyCode.E;
+    
     [Header("Debug Visualization")]
     [SerializeField] private bool showDebugInfo = true;
     
@@ -105,6 +109,9 @@ public class WorldManager : MonoBehaviour
             StartCoroutine(PrimeAgents());
         }
         
+        // Set initial emoji mode for all agents
+        SetAllAgentsEmojiMode(useEmojiMode);
+        
         initialized = true;
     }
     
@@ -114,6 +121,27 @@ public class WorldManager : MonoBehaviour
         if (Input.GetKey(modifierKey) && Input.GetKeyDown(manualStepKey))
         {
             RunSimulationCycle();
+        }
+        
+        // Toggle emoji mode
+        if (Input.GetKeyDown(emojiToggleKey))
+        {
+            useEmojiMode = !useEmojiMode;
+            SetAllAgentsEmojiMode(useEmojiMode);
+            Debug.Log($"Emoji mode set to: {useEmojiMode}");
+        }
+    }
+    
+    // Toggle emoji mode for all agents
+    public void SetAllAgentsEmojiMode(bool useEmojis)
+    {
+        foreach (var agent in activeAgents)
+        {
+            AgentUI ui = agent.GetComponent<AgentUI>();
+            if (ui != null)
+            {
+                ui.ToggleEmojiMode(useEmojis);
+            }
         }
     }
     
