@@ -42,9 +42,9 @@ public class WorldManager : MonoBehaviour
     [SerializeField] private KeyCode emojiToggleKey = KeyCode.E;
     
     [Header("Agent Appearance")]
-    [SerializeField] private Material[] agentMaterials;  // Array of materials to assign randomly to agents
-    [SerializeField] private Color[] agentColors;        // Array of colors to assign randomly to agents
-    [SerializeField] private bool applyRandomColors = true;
+    [SerializeField] private Material[] agentMaterials;  // Array of materials to assign to agents
+    [SerializeField] private Material redMaterial;       // Default red material to replace
+    [SerializeField] private bool assignMaterialsDirectly = true;  // Use direct assignment instead of random
     
     [Header("Debug Visualization")]
     [SerializeField] private bool showDebugInfo = true;
@@ -150,85 +150,287 @@ public class WorldManager : MonoBehaviour
         }
     }
     
-    // Apply a random material or color to the agent
+    // Coroutine to assign material after a delay
+    private IEnumerator AssignMaterialWithDelay(GameObject agentObject, int agentIndex)
+    {
+        // Wait a bit longer to ensure the agent is fully initialized
+        yield return new WaitForSeconds(0.1f);
+        
+        // Apply the specific material based on index
+        AssignAgentMaterial(agentObject, agentIndex);
+    }
+    
+    // Assign a specific material to an agent based on its index
+    private void AssignAgentMaterial(GameObject agentObject, int agentIndex)
+    {
+        if (agentObject == null)
+        {
+            Debug.LogError("Cannot assign material to null agent object");
+            return;
+        }
+
+        Debug.Log($"Attempting to assign material to agent {agentObject.name} with index {agentIndex}");
+
+        // Check if we have materials to work with
+        if (agentMaterials == null || agentMaterials.Length == 0)
+        {
+            Debug.LogError("No agent materials assigned in the inspector");
+            return;
+        }
+
+        // Select material based on agent index (cycle through available materials)
+        int materialIndex = agentIndex % agentMaterials.Length;
+        Material materialToAssign = agentMaterials[materialIndex];
+
+        if (materialToAssign == null)
+        {
+            Debug.LogError($"Material at index {materialIndex} is null");
+            return;
+        }
+
+        Debug.Log($"Selected material {materialToAssign.name} for agent {agentObject.name}");
+
+        // Try multiple methods to change the material
+        bool success = false;
+
+        // METHOD 1: Direct replacement of materials by name
+        success = TryReplaceAgentMaterial(agentObject, materialToAssign);
+        
+        // METHOD 2: If METHOD 1 fails, try to find a SkinnedMeshRenderer
+        if (!success)
+        {
+            SkinnedMeshRenderer[] skinnedMeshRenderers = agentObject.GetComponentsInChildren<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderers.Length > 0)
+            {
+                Debug.Log($"Found {skinnedMeshRenderers.Length} SkinnedMeshRenderers on agent");
+                foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+                {
+                    // Print all materials on this renderer
+                    Debug.Log($"Renderer {smr.gameObject.name} has {smr.materials.Length} materials:");
+                    for (int i = 0; i < smr.materials.Length; i++)
+                    {
+                        Debug.Log($"  Material {i}: {smr.materials[i]?.name ?? "null"}");
+                    }
+
+                    // Try to replace materials
+                    Material[] newMaterials = new Material[smr.materials.Length];
+                    for (int i = 0; i < smr.materials.Length; i++)
+                    {
+                        // Replace material (agent's body material is usually first)
+                        if (i == 0 || (smr.materials[i] != null && smr.materials[i].name.Contains("Red")))
+                        {
+                            newMaterials[i] = materialToAssign;
+                            Debug.Log($"Replacing material at index {i} with {materialToAssign.name}");
+                        }
+                        else
+                        {
+                            newMaterials[i] = smr.materials[i];
+                        }
+                    }
+                    smr.materials = newMaterials;
+                    success = true;
+                }
+            }
+        }
+
+        // METHOD 3: Last resort - brute force replacement of all materials
+        if (!success)
+        {
+            Debug.Log("Attempting brute force material replacement");
+            Renderer[] allRenderers = agentObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in allRenderers)
+            {
+                // Skip UI elements and text meshes
+                if (renderer.GetComponent<TextMeshPro>() != null ||
+                    renderer.gameObject.GetComponentInParent<AgentUI>() != null)
+                {
+                    continue;
+                }
+
+                Material[] newMaterials = new Material[renderer.materials.Length];
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    newMaterials[i] = materialToAssign;
+                }
+                renderer.materials = newMaterials;
+                success = true;
+            }
+        }
+
+        if (success)
+        {
+            Debug.Log($"Successfully assigned material to agent {agentObject.name}");
+        }
+        else
+        {
+            Debug.LogError($"Failed to assign material to agent {agentObject.name}");
+        }
+    }
+
+    // Try to replace the agent material by looking for specific renderers and materials
+    private bool TryReplaceAgentMaterial(GameObject agentObject, Material newMaterial)
+    {
+        // Try to find all renderers that might have the red material
+        Renderer[] renderers = agentObject.GetComponentsInChildren<Renderer>();
+        bool replacedAny = false;
+
+        foreach (Renderer renderer in renderers)
+        {
+            // Skip UI-related renderers
+            if (renderer.GetComponent<TextMeshPro>() != null || 
+                renderer.gameObject.name.Contains("UI") ||
+                renderer.gameObject.name.Contains("Text") ||
+                renderer.gameObject.name.Contains("Speech") ||
+                renderer.gameObject.GetComponentInParent<AgentUI>() != null)
+            {
+                continue;
+            }
+
+            Debug.Log($"Checking renderer: {renderer.gameObject.name} with {renderer.materials.Length} materials");
+
+            // Check all materials on this renderer
+            Material[] materials = renderer.sharedMaterials;
+            Material[] newMaterials = new Material[materials.Length];
+            bool replacedOnThisRenderer = false;
+
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material currentMat = materials[i];
+                if (currentMat == null)
+                {
+                    newMaterials[i] = null;
+                    continue;
+                }
+
+                // Check if this is a material we should replace (Red_Agent or similar)
+                if (currentMat.name.Contains("Red") || 
+                    (redMaterial != null && currentMat.name == redMaterial.name))
+                {
+                    Debug.Log($"Found material to replace: {currentMat.name} at index {i}");
+                    newMaterials[i] = newMaterial;
+                    replacedOnThisRenderer = true;
+                }
+                else
+                {
+                    // Keep any non-red materials
+                    newMaterials[i] = materials[i];
+                }
+            }
+
+            // Apply the changes if we found something to replace
+            if (replacedOnThisRenderer)
+            {
+                renderer.sharedMaterials = newMaterials;
+                replacedAny = true;
+                Debug.Log($"Replaced materials on {renderer.gameObject.name}");
+            }
+        }
+
+        return replacedAny;
+    }
+    
+    // Old random appearance method - kept for reference
     private void ApplyRandomAppearance(GameObject agentObject)
     {
         if (agentObject == null) return;
         
-        // Find all renderers on the agent and its children
-        Renderer[] renderers = agentObject.GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0)
-        {
-            Debug.LogWarning($"No renderers found on agent {agentObject.name}");
-            return;
-        }
+        // Debug to check if the function is being called
+        Debug.Log($"ApplyRandomAppearance called for {agentObject.name}");
         
-        // Decide whether to use a material or a color
-        bool useMaterial = agentMaterials != null && agentMaterials.Length > 0;
-        bool useColor = agentColors != null && agentColors.Length > 0;
-        
-        if (!useMaterial && !useColor)
+        // Find all renderers on the agent model (excluding UI elements)
+        List<Renderer> agentRenderers = new List<Renderer>();
+        foreach (Renderer renderer in agentObject.GetComponentsInChildren<Renderer>(true))
         {
-            Debug.LogWarning("No materials or colors defined for random agent appearance");
-            return;
-        }
-        
-        // Use materials if available, otherwise fall back to colors
-        if (useMaterial)
-        {
-            // Select a random material from the array
-            Material randomMaterial = agentMaterials[UnityEngine.Random.Range(0, agentMaterials.Length)];
-            
-            if (randomMaterial != null)
+            // Skip any renderer that might be part of the UI
+            if (renderer.gameObject.GetComponentInParent<TMPro.TextMeshPro>() != null || 
+                renderer.gameObject.GetComponentInParent<AgentUI>() != null ||
+                renderer.gameObject.name.Contains("UI_") ||
+                renderer.gameObject.name.Contains("Text") ||
+                renderer.gameObject.name.Contains("Speech") ||
+                renderer.gameObject.name.Contains("Bubble") ||
+                renderer.gameObject.name.Contains("Emoji"))
             {
-                Debug.Log($"Applying random material to agent {agentObject.name}");
-                
-                // Apply the material to all renderers (except UI elements)
-                foreach (Renderer renderer in renderers)
+                Debug.Log($"Skipping UI element: {renderer.gameObject.name}");
+                continue;
+            }
+            
+            agentRenderers.Add(renderer);
+        }
+        
+        if (agentRenderers.Count == 0)
+        {
+            Debug.LogWarning($"No suitable renderers found on agent {agentObject.name}");
+            return;
+        }
+        
+        Debug.Log($"Found {agentRenderers.Count} renderers to modify on {agentObject.name}");
+        
+        // Only proceed if we have materials to use
+        if (agentMaterials == null || agentMaterials.Length == 0)
+        {
+            Debug.LogWarning("No materials defined for random agent appearance");
+            return;
+        }
+        
+        // Select a random material from the array
+        Material randomMaterial = agentMaterials[UnityEngine.Random.Range(0, agentMaterials.Length)];
+        
+        if (randomMaterial == null)
+        {
+            Debug.LogWarning("Selected random material is null");
+            return;
+        }
+        
+        Debug.Log($"Applying random material {randomMaterial.name} to agent {agentObject.name}");
+        
+        // Apply the material only to renderers with the Red_Agent material
+        foreach (Renderer renderer in agentRenderers)
+        {
+            // Log the current materials on this renderer
+            Material[] currentMaterials = renderer.materials;
+            for (int i = 0; i < currentMaterials.Length; i++)
+            {
+                if (currentMaterials[i] != null)
                 {
-                    // Skip UI elements (which might be part of the agent's UI)
-                    if (renderer.transform.GetComponentInParent<AgentUI>() != null || 
-                        renderer.transform.parent?.parent?.GetComponent<AgentUI>() != null)
-                        continue;
+                    Debug.Log($"Material {i} on {renderer.gameObject.name}: {currentMaterials[i].name}");
+                }
+            }
+            
+            // Create a copy of the current materials array
+            Material[] newMaterials = new Material[renderer.materials.Length];
+            bool materialChanged = false;
+            
+            // Replace only the Red_Agent material with our random material
+            for (int i = 0; i < renderer.materials.Length; i++)
+            {
+                Material currentMat = renderer.materials[i];
+                
+                // Check if this is the Red_Agent material
+                if (currentMat != null && 
+                   (currentMat.name.Contains("Red_Agent") || currentMat.name.StartsWith("Red_Agent")))
+                {
+                    Debug.Log($"Found Red_Agent material on {renderer.gameObject.name}, replacing with {randomMaterial.name}");
                     
-                    // Create a new material instance to avoid modifying the original asset
-                    Material[] materials = new Material[renderer.materials.Length];
-                    for (int i = 0; i < materials.Length; i++)
-                    {
-                        materials[i] = new Material(randomMaterial);
-                    }
-                    renderer.materials = materials;
+                    // Replace with random material
+                    newMaterials[i] = new Material(randomMaterial);
+                    materialChanged = true;
                 }
-            }
-        }
-        else if (useColor)
-        {
-            // Select a random color from the array
-            Color randomColor = agentColors[UnityEngine.Random.Range(0, agentColors.Length)];
-            
-            Debug.Log($"Applying random color to agent {agentObject.name}");
-            
-            // Apply the color to all renderers (except UI elements)
-            foreach (Renderer renderer in renderers)
-            {
-                // Skip UI elements
-                if (renderer.transform.GetComponentInParent<AgentUI>() != null || 
-                    renderer.transform.parent?.parent?.GetComponent<AgentUI>() != null)
-                    continue;
-                
-                // Create a new material instance for each existing material
-                Material[] materials = renderer.materials;
-                for (int i = 0; i < materials.Length; i++)
+                else
                 {
-                    Material originalMaterial = materials[i];
-                    // Create a new instance to avoid modifying the asset
-                    materials[i] = new Material(originalMaterial);
-                    // Set the color
-                    materials[i].color = randomColor;
+                    // Keep the original material
+                    newMaterials[i] = new Material(currentMat);
                 }
-                renderer.materials = materials;
+            }
+            
+            // Only update materials if we actually changed something
+            if (materialChanged)
+            {
+                renderer.materials = newMaterials;
+                Debug.Log($"Updated materials on {renderer.gameObject.name}");
             }
         }
+        
+        Debug.Log($"Finished applying appearance to {agentObject.name}");
     }
     
     private void InitializeLocations()
@@ -597,10 +799,14 @@ public class WorldManager : MonoBehaviour
         ui.agentId = agentId;
         ui.SetNameText(agentId);
         
-        // Apply random material/color if enabled
-        if (applyRandomColors)
+        // Apply materials (with delay to ensure model is fully loaded)
+        if (assignMaterialsDirectly)
         {
-            ApplyRandomAppearance(agentObject);
+            // Get the agent index to determine which material to use
+            int agentIndex = activeAgents.Count;
+            
+            // Use coroutine to apply the appearance after a short delay
+            StartCoroutine(AssignMaterialWithDelay(agentObject, agentIndex));
         }
         
         // Don't force UI height - use the values from prefab instead

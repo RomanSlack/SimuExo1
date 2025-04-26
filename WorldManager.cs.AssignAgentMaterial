@@ -1,0 +1,168 @@
+    // Assign a specific material to an agent based on its index
+    private void AssignAgentMaterial(GameObject agentObject, int agentIndex)
+    {
+        if (agentObject == null)
+        {
+            Debug.LogError("Cannot assign material to null agent object");
+            return;
+        }
+
+        Debug.Log($"Attempting to assign material to agent {agentObject.name} with index {agentIndex}");
+
+        // Check if we have materials to work with
+        if (agentMaterials == null || agentMaterials.Length == 0)
+        {
+            Debug.LogError("No agent materials assigned in the inspector");
+            return;
+        }
+
+        // Select material based on agent index (cycle through available materials)
+        int materialIndex = agentIndex % agentMaterials.Length;
+        Material materialToAssign = agentMaterials[materialIndex];
+
+        if (materialToAssign == null)
+        {
+            Debug.LogError($"Material at index {materialIndex} is null");
+            return;
+        }
+
+        Debug.Log($"Selected material {materialToAssign.name} for agent {agentObject.name}");
+
+        // Try multiple methods to change the material
+        bool success = false;
+
+        // METHOD 1: Direct replacement of materials by name
+        success = TryReplaceAgentMaterial(agentObject, materialToAssign);
+        
+        // METHOD 2: If METHOD 1 fails, try to find a SkinnedMeshRenderer
+        if (!success)
+        {
+            SkinnedMeshRenderer[] skinnedMeshRenderers = agentObject.GetComponentsInChildren<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderers.Length > 0)
+            {
+                Debug.Log($"Found {skinnedMeshRenderers.Length} SkinnedMeshRenderers on agent");
+                foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+                {
+                    // Print all materials on this renderer
+                    Debug.Log($"Renderer {smr.gameObject.name} has {smr.materials.Length} materials:");
+                    for (int i = 0; i < smr.materials.Length; i++)
+                    {
+                        Debug.Log($"  Material {i}: {smr.materials[i]?.name ?? "null"}");
+                    }
+
+                    // Try to replace materials
+                    Material[] newMaterials = new Material[smr.materials.Length];
+                    for (int i = 0; i < smr.materials.Length; i++)
+                    {
+                        // Replace material (agent's body material is usually first)
+                        if (i == 0 || (smr.materials[i] != null && smr.materials[i].name.Contains("Red")))
+                        {
+                            newMaterials[i] = materialToAssign;
+                            Debug.Log($"Replacing material at index {i} with {materialToAssign.name}");
+                        }
+                        else
+                        {
+                            newMaterials[i] = smr.materials[i];
+                        }
+                    }
+                    smr.materials = newMaterials;
+                    success = true;
+                }
+            }
+        }
+
+        // METHOD 3: Last resort - brute force replacement of all materials
+        if (!success)
+        {
+            Debug.Log("Attempting brute force material replacement");
+            Renderer[] allRenderers = agentObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in allRenderers)
+            {
+                // Skip UI elements and text meshes
+                if (renderer.GetComponent<TextMeshPro>() != null ||
+                    renderer.gameObject.GetComponentInParent<AgentUI>() != null)
+                {
+                    continue;
+                }
+
+                Material[] newMaterials = new Material[renderer.materials.Length];
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    newMaterials[i] = materialToAssign;
+                }
+                renderer.materials = newMaterials;
+                success = true;
+            }
+        }
+
+        if (success)
+        {
+            Debug.Log($"Successfully assigned material to agent {agentObject.name}");
+        }
+        else
+        {
+            Debug.LogError($"Failed to assign material to agent {agentObject.name}");
+        }
+    }
+
+    // Try to replace the agent material by looking for specific renderers and materials
+    private bool TryReplaceAgentMaterial(GameObject agentObject, Material newMaterial)
+    {
+        // Try to find all renderers that might have the red material
+        Renderer[] renderers = agentObject.GetComponentsInChildren<Renderer>();
+        bool replacedAny = false;
+
+        foreach (Renderer renderer in renderers)
+        {
+            // Skip UI-related renderers
+            if (renderer.GetComponent<TextMeshPro>() != null || 
+                renderer.gameObject.name.Contains("UI") ||
+                renderer.gameObject.name.Contains("Text") ||
+                renderer.gameObject.name.Contains("Speech") ||
+                renderer.gameObject.GetComponentInParent<AgentUI>() != null)
+            {
+                continue;
+            }
+
+            Debug.Log($"Checking renderer: {renderer.gameObject.name} with {renderer.materials.Length} materials");
+
+            // Check all materials on this renderer
+            Material[] materials = renderer.sharedMaterials;
+            Material[] newMaterials = new Material[materials.Length];
+            bool replacedOnThisRenderer = false;
+
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material currentMat = materials[i];
+                if (currentMat == null)
+                {
+                    newMaterials[i] = null;
+                    continue;
+                }
+
+                // Check if this is a material we should replace (Red_Agent or similar)
+                if (currentMat.name.Contains("Red") || 
+                    (redMaterial != null && currentMat.name == redMaterial.name))
+                {
+                    Debug.Log($"Found material to replace: {currentMat.name} at index {i}");
+                    newMaterials[i] = newMaterial;
+                    replacedOnThisRenderer = true;
+                }
+                else
+                {
+                    // Keep any non-red materials
+                    newMaterials[i] = materials[i];
+                }
+            }
+
+            // Apply the changes if we found something to replace
+            if (replacedOnThisRenderer)
+            {
+                renderer.sharedMaterials = newMaterials;
+                replacedAny = true;
+                Debug.Log($"Replaced materials on {renderer.gameObject.name}");
+            }
+        }
+
+        return replacedAny;
+    }
