@@ -417,7 +417,7 @@ public class WorldManager : MonoBehaviour
         if (agentPrefab != null)
         {
             agentObject = Instantiate(agentPrefab, agentsContainer);
-            agentObject.transform.localScale = Vector3.one;   // <-- ADD THIS
+            // Don't override prefab scale to preserve the size from the prefab
             
             // Make sure it's on the Agent layer for detection
             agentObject.layer = LayerMask.NameToLayer("Agent");
@@ -481,8 +481,7 @@ public class WorldManager : MonoBehaviour
         ui.agentId = agentId;
         ui.SetNameText(agentId);
         
-        // Force UI position update immediately
-        ui.SetUIHeight(6.0f); // Use a consistent height
+        // Don't force UI height - use the values from prefab instead
 
         // Set initial position and agent's current location
         Vector3 targetPosition;
