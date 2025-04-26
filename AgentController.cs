@@ -255,8 +255,18 @@ public class AgentController : MonoBehaviour
             StopCoroutine(moveRoutine);
         }
         
-        // Set target position
-        targetPosition = position;
+        // Add random offset to the target position (within 5 units in X and Z)
+        float offsetX = UnityEngine.Random.Range(-5f, 5f);
+        float offsetZ = UnityEngine.Random.Range(-5f, 5f);
+        Vector3 positionWithOffset = new Vector3(
+            position.x + offsetX,
+            position.y,
+            position.z + offsetZ
+        );
+        
+        // Set target position with random offset
+        targetPosition = positionWithOffset;
+        Debug.Log($"[{agentId}] Added random offset ({offsetX}, {offsetZ}) to destination");
         
         // Make sure the target position is on the NavMesh
         NavMeshHit hitTarget;
